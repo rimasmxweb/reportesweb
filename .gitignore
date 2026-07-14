@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Agent secrets
+agent/.env
+agent/client_secret.json
+agent/token.json

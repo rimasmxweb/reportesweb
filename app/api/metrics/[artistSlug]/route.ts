@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/auth'
+import { getArtistBySlug } from '@/lib/config'
+import { getArtistMetrics } from '@/lib/campaignData'
 
 export async function GET(
   request: NextRequest,
@@ -10,46 +11,38 @@ export async function GET(
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
   const { artistSlug } = await params
-  const supabase = createServiceClient()
-
-  const { data: artist } = await supabase
-    .from('artists')
-    .select('id, name, slug')
-    .eq('slug', artistSlug)
-    .single()
+  const artist = getArtistBySlug(artistSlug)
 
   if (!artist || !session.artistIds.includes(artist.id)) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
   }
 
   const { searchParams } = new URL(request.url)
-  const days = parseInt(searchParams.get('days') ?? '7')
   const platform = searchParams.get('platform')
 
-  const dateFrom = new Date()
-  dateFrom.setDate(dateFrom.getDate() - days)
+  // Rango personalizado (from/to en YYYY-MM-DD) o preset de días
+  const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+  const fromParam = searchParams.get('from')
+  const toParam = searchParams.get('to')
 
-  let query = supabase
-    .from('campaign_metrics')
-    .select(`
-      *,
-      campaigns!inner (
-        id, name, platform, youtube_type, status, budget_total, artist_id
-      )
-    `)
-    .eq('campaigns.artist_id', artist.id)
-    .gte('date', dateFrom.toISOString().split('T')[0])
-    .order('date', { ascending: false })
-
-  if (platform) {
-    query = query.eq('campaigns.platform', platform)
+  let dateFrom: string
+  let dateTo: string | null = null
+  if (fromParam && toParam && DATE_RE.test(fromParam) && DATE_RE.test(toParam)) {
+    dateFrom = fromParam <= toParam ? fromParam : toParam
+    dateTo = fromParam <= toParam ? toParam : fromParam
+  } else {
+    const days = parseInt(searchParams.get('days') ?? '7')
+    dateFrom = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10)
   }
 
-  const { data: metrics } = await query
-
-  const filteredMetrics = platform
-    ? metrics?.filter((m) => m.campaigns?.platform === platform)
-    : metrics
-
-  return NextResponse.json({ artist, metrics: filteredMetrics ?? [] })
+  try {
+    const metrics = await getArtistMetrics(artist, dateFrom, platform, dateTo)
+    return NextResponse.json({
+      artist: { id: artist.id, name: artist.name, slug: artist.slug },
+      metrics,
+    })
+  } catch (err) {
+    console.error('[api/metrics]', err)
+    return NextResponse.json({ error: 'Error consultando métricas' }, { status: 502 })
+  }
 }

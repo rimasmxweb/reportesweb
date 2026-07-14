@@ -1,27 +1,36 @@
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth'
-import { createServiceClient } from '@/lib/supabase/server'
-import Link from 'next/link'
+import { getArtists } from '@/lib/config'
+import { getActivePlatformsByArtist } from '@/lib/campaignData'
 import Image from 'next/image'
+import { photoSrc } from '@/lib/artistPhotos'
+import ArtistGrid from './ArtistGrid'
+import LaserBar from '../components/LaserBar'
 
-const PLATFORM_STYLES: Record<string, { label: string; color: string }> = {
-  google_youtube: { label: 'YouTube',  color: 'border-[#FF0000]/30 text-[#FF0000] bg-[#FF0000]/5' },
-  meta:           { label: 'Meta',     color: 'border-[#1877F2]/30 text-[#1877F2] bg-[#1877F2]/5' },
-  tiktok:         { label: 'TikTok',   color: 'border-white/20 text-white bg-white/5' },
-}
+const C = { fontFamily: "'Barlow Condensed', sans-serif" }
 
 export default async function DashboardPage() {
   const session = await getSession()
   if (!session) redirect('/login')
 
-  const supabase = createServiceClient()
+  const artists = getArtists().filter((a) => session.artistIds.includes(a.id))
 
-  const { data: artists } = await supabase
-    .from('artists')
-    .select('id, name, slug, campaigns (platform)')
-    .in('id', session.artistIds)
-    .eq('active', true)
-    .order('name')
+  let platformsByArtist = new Map<string, Set<string>>()
+  try {
+    platformsByArtist = await getActivePlatformsByArtist()
+  } catch (err) {
+    console.error('[dashboard] no se pudieron cargar plataformas activas:', err)
+  }
+
+  const artistData = artists
+    .map((a) => ({
+      id: a.id,
+      name: a.name,
+      slug: a.slug,
+      photo: photoSrc(a.slug),
+      platforms: [...(platformsByArtist.get(a.id) ?? [])],
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name))
 
   async function logout() {
     'use server'
@@ -31,26 +40,22 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Red top bar */}
-      <div className="h-1 w-full bg-[#E8192C]" />
+    <div className="min-h-screen" style={{ background: 'var(--bg-page)' }}>
+      <LaserBar />
 
-      {/* Header */}
-      <header className="border-b border-[#141414] px-8 py-5 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Image src="/logo-rimas.png" alt="Rimas" width={100} height={25} priority />
-          <span className="text-[#333] text-xs mx-1">|</span>
-          <span className="text-[#666] text-xs uppercase tracking-widest">Campaign Dashboard</span>
+      <header className="sticky top-0 z-50 bg-[#0a0a0b] sm:bg-[#0a0a0b]/90 sm:backdrop-blur-md px-4 sm:px-8 py-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <Image src="/logo-rimas.png" alt="Rimas" width={90} height={22} priority style={{ height: 'auto', width: 'auto' }} className="w-20 sm:w-[100px]" />
+          <span className="text-[#3a3a3a] text-xs mx-1 hidden sm:inline">|</span>
+          <span className="text-[#888] text-xs uppercase tracking-widest hidden sm:inline" style={C}>Campaign Dashboard</span>
         </div>
-        <div className="flex items-center gap-6">
-          <span className="text-[#666] text-xs">
-            {session.pmName}
-          </span>
+        <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+          <span className="text-[#888] text-xs hidden sm:inline truncate max-w-[140px]" style={C}>{session.pmName}</span>
           <form action={logout}>
             <button
               type="submit"
-              className="text-xs text-[#444] hover:text-[#E8192C] transition-colors uppercase tracking-widest"
-              style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
+              className="link-sweep text-xs text-[#888] hover:text-white transition-colors uppercase tracking-widest pb-0.5"
+              style={C}
             >
               Salir
             </button>
@@ -58,78 +63,25 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-8 py-12">
-        {/* Section title */}
-        <div className="flex items-center gap-4 mb-10">
-          <div className="w-1 h-6 bg-[#E8192C]" />
-          <h1
-            className="text-white text-3xl font-black uppercase tracking-wide"
-            style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
-          >
+      <main className="max-w-5xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
+        <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <div className="w-1 h-7 bg-[#E8192C] rounded-full" />
+          <h1 className="text-[#0a0a0b] text-2xl sm:text-3xl font-black uppercase tracking-wide" style={C}>
             Tus Artistas
           </h1>
-          <span className="text-[#333] text-sm ml-2">
-            {artists?.length ?? 0} activos
+          <span className="text-[#9b9ba3] text-sm ml-1" style={C}>
+            {artistData.length} activos
           </span>
         </div>
 
-        {!artists || artists.length === 0 ? (
-          <div className="border border-[#1a1a1a] rounded-sm p-12 text-center">
-            <p className="text-[#444] text-sm uppercase tracking-widest">
+        {artistData.length === 0 ? (
+          <div className="border border-[#e6e6e8] bg-white rounded-xl p-12 text-center">
+            <p className="text-[#9b9ba3] text-sm uppercase tracking-widest" style={C}>
               No hay artistas asignados
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {artists.map((artist) => {
-              const platforms = [...new Set(
-                artist.campaigns?.map((c: { platform: string }) => c.platform) ?? []
-              )]
-              return (
-                <Link
-                  key={artist.id}
-                  href={`/dashboard/${artist.slug}`}
-                  className="group relative block border border-[#1a1a1a] hover:border-[#E8192C]/40 bg-[#0a0a0a] hover:bg-[#0f0f0f] rounded-sm p-6 transition-all duration-200"
-                >
-                  {/* Red left accent on hover */}
-                  <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#E8192C] opacity-0 group-hover:opacity-100 transition-opacity rounded-l-sm" />
-
-                  <div className="flex items-start justify-between mb-5">
-                    <h3
-                      className="text-white text-2xl font-black uppercase leading-tight group-hover:text-[#E8192C] transition-colors"
-                      style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
-                    >
-                      {artist.name}
-                    </h3>
-                    <span className="text-[#333] group-hover:text-[#E8192C] transition-colors text-lg mt-1">
-                      →
-                    </span>
-                  </div>
-
-                  {platforms.length > 0 ? (
-                    <div className="flex flex-wrap gap-1.5">
-                      {platforms.map((p) => {
-                        const style = PLATFORM_STYLES[p as string]
-                        return (
-                          <span
-                            key={p as string}
-                            className={`text-[10px] px-2 py-0.5 rounded-sm border uppercase tracking-widest font-bold ${style?.color ?? 'border-[#333] text-[#666] bg-transparent'}`}
-                            style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
-                          >
-                            {style?.label ?? p as string}
-                          </span>
-                        )
-                      })}
-                    </div>
-                  ) : (
-                    <span className="text-[#333] text-[10px] uppercase tracking-widest">
-                      Sin campañas activas
-                    </span>
-                  )}
-                </Link>
-              )
-            })}
-          </div>
+          <ArtistGrid artists={artistData} />
         )}
       </main>
     </div>

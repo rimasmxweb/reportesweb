@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import LaserBar from '../components/LaserBar'
+
+const C = { fontFamily: "'Barlow Condensed', sans-serif" }
 
 export default function LoginPage() {
   const [code, setCode] = useState('')
@@ -33,11 +36,32 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
-      {/* Red top bar */}
-      <div className="h-1 w-full bg-[#E8192C]" />
+    <div className="min-h-screen bg-black flex flex-col relative overflow-hidden">
+      <LaserBar loading={loading} />
 
-      <div className="flex-1 flex items-center justify-center px-6">
+      {/* Orbe ambiental */}
+      <div
+        className="absolute -top-40 -right-40 w-[480px] h-[480px] rounded-full pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, rgb(232 25 44 / .28), transparent 65%)',
+          animation: 'float-orb 14s ease-in-out infinite',
+        }}
+      />
+
+      {/* Marca de agua outline */}
+      <p
+        aria-hidden
+        className="absolute bottom-[-4vw] left-0 whitespace-nowrap pointer-events-none select-none text-[26vw] font-black uppercase leading-none"
+        style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          WebkitTextStroke: '1px rgba(255,255,255,.05)',
+          color: 'transparent',
+        }}
+      >
+        RIMAS
+      </p>
+
+      <div className="flex-1 flex items-center justify-center px-6 relative z-10">
         <div className="w-full max-w-sm">
 
           {/* Logo */}
@@ -48,21 +72,19 @@ export default function LoginPage() {
               width={180}
               height={45}
               priority
+              style={{ height: 'auto' }}
             />
           </div>
 
           {/* Card */}
-          <div className="border border-[#1a1a1a] bg-[#0a0a0a] rounded-sm p-8">
-            <p
-              className="text-[#E8192C] text-xs font-bold uppercase tracking-[0.2em] mb-1"
-              style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
-            >
+          <div
+            key={error || 'ok'}
+            className={`rounded-2xl bg-[#0e0e10] border border-[#222226] p-8 shadow-[0_24px_60px_-20px_rgb(0_0_0/.8)] animate-rise relative ${error ? 'animate-shake' : ''}`}
+          >
+            <p className="text-[#E8192C] text-xs font-bold uppercase tracking-[0.2em] mb-1" style={C}>
               Campaign Dashboard
             </p>
-            <h2
-              className="text-white text-2xl font-black uppercase mb-8"
-              style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
-            >
+            <h2 className="text-white text-2xl font-black uppercase mb-8" style={C}>
               Acceso Interno
             </h2>
 
@@ -70,7 +92,7 @@ export default function LoginPage() {
               <div>
                 <label
                   className="block text-[#666] text-xs uppercase tracking-[0.15em] mb-2"
-                  style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
+                  style={C}
                 >
                   Código de Acceso
                 </label>
@@ -79,7 +101,7 @@ export default function LoginPage() {
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
                   placeholder="RIMAS-XXXX-XX"
-                  className="w-full bg-black border border-[#2a2a2a] text-white placeholder-[#333] rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-[#E8192C] transition-colors font-mono tracking-widest"
+                  className="w-full bg-black border border-[#2a2a2a] text-white placeholder-[#333] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#E8192C] focus:shadow-[var(--shadow-red-halo)] transition-all font-mono tracking-widest"
                   required
                   autoFocus
                 />
@@ -92,8 +114,8 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading || !code}
-                className="w-full bg-[#E8192C] hover:bg-[#c0101f] text-white font-black uppercase tracking-[0.15em] py-3 rounded-sm text-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
+                className={`w-full text-white font-black uppercase tracking-[0.15em] py-3 rounded-xl text-sm relative overflow-hidden hover:brightness-110 active:scale-[0.98] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed ${loading ? 'sweep-once sweep-loop' : ''}`}
+                style={{ ...C, background: 'var(--grad-encendido)', boxShadow: 'var(--shadow-red-glow)' }}
               >
                 {loading ? 'Verificando...' : 'Ingresar'}
               </button>

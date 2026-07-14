@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
 import { createSession, setSessionCookie } from '@/lib/auth'
+import { getPmByAccessCode } from '@/lib/config'
 
 export async function POST(request: NextRequest) {
   const { code } = await request.json()
@@ -9,29 +9,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Código requerido' }, { status: 400 })
   }
 
-  const supabase = createServiceClient()
+  const pm = getPmByAccessCode(code)
 
-  const { data: pm, error } = await supabase
-    .from('project_managers')
-    .select('id, name, email')
-    .eq('access_code', code.trim().toUpperCase())
-    .single()
-
-  if (error || !pm) {
+  if (!pm) {
     return NextResponse.json({ error: 'Código incorrecto' }, { status: 401 })
   }
-
-  const { data: pmArtists } = await supabase
-    .from('pm_artists')
-    .select('artist_id')
-    .eq('pm_id', pm.id)
-
-  const artistIds = pmArtists?.map((r) => r.artist_id) ?? []
 
   const token = await createSession({
     pmId: pm.id,
     pmName: pm.name,
-    artistIds,
+    artistIds: pm.artistIds,
   })
 
   await setSessionCookie(token)

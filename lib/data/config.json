@@ -1,0 +1,209 @@
+{
+  "artists": [
+    {
+      "id": "bc790df8-0f5c-4ea0-af93-f5c113cda76b",
+      "name": "Alexia Mariel",
+      "slug": "alexia-mariel",
+      "namePattern": "ALEXIA MARIEL",
+      "active": true
+    },
+    {
+      "id": "85a6bf2e-e32b-44ff-9376-6a67f72b96c1",
+      "name": "Andy Rivera",
+      "slug": "andy-rivera",
+      "namePattern": "ANDY RIVERA",
+      "active": true
+    },
+    {
+      "id": "02be1eff-5b0b-4251-b012-2af627785842",
+      "name": "Big Soto",
+      "slug": "big-soto",
+      "namePattern": "BIG SOTO",
+      "active": true
+    },
+    {
+      "id": "a53638ea-4d07-4dea-b3a0-ca467549fc6f",
+      "name": "El Jordan 23",
+      "slug": "el-jordan-23",
+      "namePattern": "JORDAN 23",
+      "active": true
+    },
+    {
+      "id": "df9cf493-a826-4a0d-8680-e278b148eb48",
+      "name": "Fama",
+      "slug": "fama",
+      "namePattern": "FAMA",
+      "active": true
+    },
+    {
+      "id": "a934af6f-7e54-4db4-822f-aab938fac57f",
+      "name": "Joseph Taics",
+      "slug": "joseph-taics",
+      "namePattern": "JOSEPH TAICS",
+      "active": true
+    },
+    {
+      "id": "2ea5dcc7-100d-44a4-8570-34ebe74b5165",
+      "name": "Kinto Piso",
+      "slug": "kinto-piso",
+      "namePattern": "KINTO PISO",
+      "active": true
+    },
+    {
+      "id": "ffad625b-7d38-481d-8ce2-b75a4d8750a6",
+      "name": "Latin Mafia",
+      "slug": "latin-mafia",
+      "namePattern": "LATIN MAFIA",
+      "active": true
+    },
+    {
+      "id": "44930c4d-a1e9-483c-9174-76f607d22722",
+      "name": "Mosmo",
+      "slug": "mosmo",
+      "namePattern": "MOSMO",
+      "active": true
+    },
+    {
+      "id": "715212db-f8e8-4956-927e-fe31c0e69283",
+      "name": "Neutro Shorty",
+      "slug": "neutro-shorty",
+      "namePattern": "NEUTRO",
+      "active": true
+    },
+    {
+      "id": "27b1388a-2933-4984-9f19-c536c939618d",
+      "name": "Pailita",
+      "slug": "pailita",
+      "namePattern": "PAILITA",
+      "active": true
+    },
+    {
+      "id": "bd3605ed-4942-4364-b202-0b18a354ce55",
+      "name": "Yandel",
+      "slug": "yandel",
+      "namePattern": "YANDEL",
+      "active": true
+    },
+    {
+      "id": "25355b25-1d7d-4bbb-82f9-de161f74cb69",
+      "name": "Yurgenis",
+      "slug": "yurgenis",
+      "namePattern": "YURGENIS",
+      "active": true
+    }
+  ],
+  "projectManagers": [
+    {
+      "id": "1ef37ade-c1fb-487b-8a49-846918073b91",
+      "name": "Fernando Rodriguez",
+      "email": "fernando.rodriguez@rimasmx.com",
+      "accessCode": "RIMAS-FR",
+      "artistIds": [
+        "715212db-f8e8-4956-927e-fe31c0e69283",
+        "44930c4d-a1e9-483c-9174-76f607d22722",
+        "df9cf493-a826-4a0d-8680-e278b148eb48",
+        "85a6bf2e-e32b-44ff-9376-6a67f72b96c1",
+        "bd3605ed-4942-4364-b202-0b18a354ce55",
+        "ffad625b-7d38-481d-8ce2-b75a4d8750a6",
+        "bc790df8-0f5c-4ea0-af93-f5c113cda76b",
+        "a934af6f-7e54-4db4-822f-aab938fac57f",
+        "02be1eff-5b0b-4251-b012-2af627785842",
+        "27b1388a-2933-4984-9f19-c536c939618d",
+        "2ea5dcc7-100d-44a4-8570-34ebe74b5165",
+        "a53638ea-4d07-4dea-b3a0-ca467549fc6f",
+        "25355b25-1d7d-4bbb-82f9-de161f74cb69"
+      ]
+    },
+    {
+      "id": "1a2f122c-c291-4e8a-b838-6c4941f77eb7",
+      "name": "Hector Guzman",
+      "email": "personalhguzman@gmail.com",
+      "accessCode": "RIMAS-HG",
+      "artistIds": [
+        "715212db-f8e8-4956-927e-fe31c0e69283",
+        "44930c4d-a1e9-483c-9174-76f607d22722",
+        "df9cf493-a826-4a0d-8680-e278b148eb48",
+        "85a6bf2e-e32b-44ff-9376-6a67f72b96c1",
+        "bd3605ed-4942-4364-b202-0b18a354ce55",
+        "ffad625b-7d38-481d-8ce2-b75a4d8750a6",
+        "bc790df8-0f5c-4ea0-af93-f5c113cda76b",
+        "a934af6f-7e54-4db4-822f-aab938fac57f",
+        "02be1eff-5b0b-4251-b012-2af627785842",
+        "27b1388a-2933-4984-9f19-c536c939618d",
+        "2ea5dcc7-100d-44a4-8570-34ebe74b5165",
+        "a53638ea-4d07-4dea-b3a0-ca467549fc6f",
+        "25355b25-1d7d-4bbb-82f9-de161f74cb69"
+      ]
+    },
+    {
+      "id": "024e949d-0f36-4210-a1a7-42670383e401",
+      "name": "Hilda Carabano",
+      "email": "hilda.carabano@rimasmx.com",
+      "accessCode": "RIMAS-HC",
+      "artistIds": [
+        "715212db-f8e8-4956-927e-fe31c0e69283",
+        "44930c4d-a1e9-483c-9174-76f607d22722",
+        "df9cf493-a826-4a0d-8680-e278b148eb48",
+        "85a6bf2e-e32b-44ff-9376-6a67f72b96c1",
+        "bd3605ed-4942-4364-b202-0b18a354ce55",
+        "ffad625b-7d38-481d-8ce2-b75a4d8750a6",
+        "bc790df8-0f5c-4ea0-af93-f5c113cda76b",
+        "a934af6f-7e54-4db4-822f-aab938fac57f",
+        "02be1eff-5b0b-4251-b012-2af627785842",
+        "27b1388a-2933-4984-9f19-c536c939618d",
+        "2ea5dcc7-100d-44a4-8570-34ebe74b5165",
+        "a53638ea-4d07-4dea-b3a0-ca467549fc6f",
+        "25355b25-1d7d-4bbb-82f9-de161f74cb69"
+      ]
+    },
+    {
+      "id": "4dabf9aa-44e3-4593-8aaa-c6fac5f90ead",
+      "name": "Jorge Bracamontes",
+      "email": "jorge.bracamontes@rimasmx.com",
+      "accessCode": "RIMAS-JB",
+      "artistIds": [
+        "bc790df8-0f5c-4ea0-af93-f5c113cda76b",
+        "a934af6f-7e54-4db4-822f-aab938fac57f",
+        "02be1eff-5b0b-4251-b012-2af627785842",
+        "27b1388a-2933-4984-9f19-c536c939618d",
+        "2ea5dcc7-100d-44a4-8570-34ebe74b5165",
+        "a53638ea-4d07-4dea-b3a0-ca467549fc6f",
+        "25355b25-1d7d-4bbb-82f9-de161f74cb69"
+      ]
+    },
+    {
+      "id": "cdab04b6-4c17-4d4d-9874-349abd356d90",
+      "name": "José Carabano",
+      "email": "jose.carabano@rimasmx.com",
+      "accessCode": "RIMAS-JC",
+      "artistIds": [
+        "715212db-f8e8-4956-927e-fe31c0e69283",
+        "44930c4d-a1e9-483c-9174-76f607d22722",
+        "df9cf493-a826-4a0d-8680-e278b148eb48",
+        "85a6bf2e-e32b-44ff-9376-6a67f72b96c1",
+        "bd3605ed-4942-4364-b202-0b18a354ce55",
+        "ffad625b-7d38-481d-8ce2-b75a4d8750a6",
+        "bc790df8-0f5c-4ea0-af93-f5c113cda76b",
+        "a934af6f-7e54-4db4-822f-aab938fac57f",
+        "02be1eff-5b0b-4251-b012-2af627785842",
+        "27b1388a-2933-4984-9f19-c536c939618d",
+        "2ea5dcc7-100d-44a4-8570-34ebe74b5165",
+        "a53638ea-4d07-4dea-b3a0-ca467549fc6f",
+        "25355b25-1d7d-4bbb-82f9-de161f74cb69"
+      ]
+    },
+    {
+      "id": "165d2ce7-db59-49f2-9633-8436fad4f953",
+      "name": "Nilka Suarez",
+      "email": "nilka.suarez@rimasmx.com",
+      "accessCode": "RIMAS-NS",
+      "artistIds": [
+        "44930c4d-a1e9-483c-9174-76f607d22722",
+        "df9cf493-a826-4a0d-8680-e278b148eb48",
+        "85a6bf2e-e32b-44ff-9376-6a67f72b96c1",
+        "bd3605ed-4942-4364-b202-0b18a354ce55",
+        "ffad625b-7d38-481d-8ce2-b75a4d8750a6"
+      ]
+    }
+  ]
+}
