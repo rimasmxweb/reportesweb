@@ -253,12 +253,23 @@ export async function GET(request: NextRequest) {
   const idMap = new Map<string, string>() // `${platform}:${extId}` → uuid
   for (const row of upserted ?? []) idMap.set(`${row.platform}:${row.windsor_campaign_id}`, row.id)
 
-  const metricRows: Record<string, unknown>[] = []
+  // Windsor (TikTok) a veces devuelve filas idénticas duplicadas para la misma
+  // campaña+fecha. El upsert usa (campaign_id,date) como llave de conflicto y
+  // Postgres rechaza un batch que toque la misma fila dos veces ("ON CONFLICT
+  // DO UPDATE command cannot affect row a second time"). Colapsamos por
+  // (campaign_id,date) — son idénticas, así que quedarnos con la última no
+  // pierde ni suma nada. Google y Meta ya vienen únicos por campaña+fecha.
+  const metricByKey = new Map<string, Record<string, unknown>>()
+  let matched = 0
   for (const m of allMetricRows) {
     const { __extId, __platform, ...rest } = m as { __extId: string; __platform: string } & Record<string, unknown>
     const uuid = idMap.get(`${__platform}:${__extId}`)
-    if (uuid) metricRows.push({ campaign_id: uuid, ...rest })
+    if (!uuid) continue
+    matched++
+    metricByKey.set(`${uuid}|${rest.date}`, { campaign_id: uuid, ...rest })
   }
+  const metricRows = [...metricByKey.values()]
+  const collapsedDupes = matched - metricRows.length
 
   let synced = 0
   for (let i = 0; i < metricRows.length; i += CHUNK) {
@@ -278,6 +289,7 @@ export async function GET(request: NextRequest) {
     range: { from: dateFrom, to: dateTo },
     campaigns: allCampaignRows.length,
     metricsSynced: synced,
+    collapsedDupes,
     unmatched: [...unmatched].sort(),
     errors,
     ms: Date.now() - started,
