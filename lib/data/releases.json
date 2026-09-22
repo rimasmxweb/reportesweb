@@ -1,0 +1,33 @@
+{
+  "documentation": "Catálogo explícito de lanzamientos. Cada entrada agrupa campañas que /api/sync ya guardó para el artista. No modifica la sincronización ni el dashboard general.\n\nEmparejamiento (lib/releaseMatch.ts), mejor que la heurística de lib/projects.ts:\n- Se compara el nombre de la campaña, no el proyecto derivado.\n- Mayúsculas y acentos no importan.\n- mode \"contains\": la frase normalizada aparece dentro del nombre. Sirve para títulos largos.\n- mode \"token\": la sigla es una palabra completa (delimitada por espacio o por el inicio/fin). Sirve para siglas cortas, para no mezclarlas con otras palabras.\n- Basta con que coincida un patrón de nameContains.\n\nConvención de nombres que cubre este mapeo (la misma que documenta lib/projects.ts):\n- «Artista - Canción (tipo de campaña)»\n- «Artista | fase | Canción | tipo»\nLos separadores (-, |, paréntesis) se tratan como espacios al normalizar.",
+  "releases": [
+    {
+      "artistSlug": "yandel",
+      "artistId": "bd3605ed-4942-4364-b202-0b18a354ce55",
+      "slug": "cual-es-la-necesidad",
+      "type": "single",
+      "title": "Cuál es la necesidad",
+      "nameContains": [
+        {
+          "text": "cual es la necesidad",
+          "mode": "contains"
+        }
+      ],
+      "mapping": "Campañas de Yandel cuyo nombre contiene la frase del sencillo, con o sin acentos. Cubre «Yandel - Cuál es la necesidad (Follow On Views)» y «Yandel | F1 | Cuál es la necesidad | Alcance». No usa el proyecto derivado por lib/projects.ts."
+    },
+    {
+      "artistSlug": "yandel",
+      "artistId": "bd3605ed-4942-4364-b202-0b18a354ce55",
+      "slug": "dnd",
+      "type": "single",
+      "title": "DND",
+      "nameContains": [
+        {
+          "text": "dnd",
+          "mode": "token"
+        }
+      ],
+      "mapping": "Campañas de Yandel cuyo nombre contiene la sigla DND como token completo. Cubre «Yandel - DND (Multiformato)» y «Yandel | DND | Alcance». No coincide si esas letras van pegadas a otra palabra (por ejemplo DNDY). La sigla debe ir seguida, no separada por puntos."
+    }
+  ]
+}
