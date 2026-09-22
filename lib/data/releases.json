@@ -1,0 +1,20 @@
+{
+  "releases": [
+    {
+      "artistSlug": "yandel",
+      "slug": "cual-es-la-necesidad",
+      "title": "Cuál Es La Necesidad",
+      "type": "single",
+      "status": "active",
+      "adsPlatforms": ["youtube", "meta"],
+      "campaignNameIncludes": ["Cuál Es La Necesidad"]
+    },
+    {
+      "artistSlug": "yandel",
+      "slug": "dnd",
+      "title": "DND",
+      "type": "single",
+      "campaignNameIncludes": ["DND"]
+    }
+  ]
+}

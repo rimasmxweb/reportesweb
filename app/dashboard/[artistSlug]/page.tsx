@@ -4,6 +4,7 @@ import { getArtistBySlug } from '@/lib/config'
 import Link from 'next/link'
 import Image from 'next/image'
 import MetricsDashboard from './MetricsDashboard'
+import ReleasesSection from './ReleasesSection'
 import { photoSrc } from '@/lib/artistPhotos'
 
 const CONDENSED = { fontFamily: "'Barlow Condensed', sans-serif" }
@@ -92,6 +93,7 @@ export default async function ArtistDashboardPage({
         </div>
       )}
 
+      <ReleasesSection artistSlug={artist.slug} />
       <MetricsDashboard artistSlug={artistSlug} artistName={artist.name} />
     </div>
   )
