@@ -747,7 +747,17 @@ function MetricCell({ label, value }: { label: string; value: string }) {
   )
 }
 
-export default function MetricsDashboard({ artistSlug, artistName }: { artistSlug: string; artistName: string }) {
+export default function MetricsDashboard({
+  artistSlug,
+  artistName,
+  releaseSlug,
+  releaseTitle,
+}: {
+  artistSlug: string
+  artistName: string
+  releaseSlug?: string
+  releaseTitle?: string
+}) {
   const [tab, setTab] = useState('all')
   const [days, setDays] = useState(7)
   const [metrics, setMetrics] = useState<Metric[]>([])
@@ -773,7 +783,8 @@ export default function MetricsDashboard({ artistSlug, artistName }: { artistSlu
     try {
       const platform = tab === 'all' ? '' : `&platform=${tab}`
       const range = custom ? `from=${custom.from}&to=${custom.to}` : `days=${days}`
-      const res = await fetch(`/api/metrics/${artistSlug}?${range}${platform}`)
+      const release = releaseSlug ? `&release=${encodeURIComponent(releaseSlug)}` : ''
+      const res = await fetch(`/api/metrics/${artistSlug}?${range}${platform}${release}`)
       if (res.ok) {
         const data = await res.json()
         setMetrics(data.metrics ?? [])
@@ -783,7 +794,7 @@ export default function MetricsDashboard({ artistSlug, artistName }: { artistSlu
       setFetching(false)
       setLoading(false)
     }
-  }, [artistSlug, tab, days, custom])
+  }, [artistSlug, tab, days, custom, releaseSlug])
 
   useEffect(() => {
     setLoading(true)
@@ -839,7 +850,9 @@ export default function MetricsDashboard({ artistSlug, artistName }: { artistSlu
   }
 
   const spendTrend = calcTrend(filtered, (m) => m.total_spend ?? 0)
-  const heroSubline = `vs. mitad anterior · ${activeCount} activas${projects[0] && project === 'all' ? ` · Top: ${projects[0].label}` : ''}`
+  const heroSubline = `vs. mitad anterior · ${activeCount} activas${
+    !releaseSlug && projects[0] && project === 'all' ? ` · Top: ${projects[0].label}` : ''
+  }`
   const hero = {
     label: 'Invertido',
     value: totals.spend,
@@ -876,7 +889,7 @@ export default function MetricsDashboard({ artistSlug, artistName }: { artistSlu
 
   // Vista Global con varios proyectos → barras por canción (clic = filtrar).
   // Proyecto seleccionado → barras por campaña de esa canción.
-  const showProjectBars = project === 'all' && projects.length > 1
+  const showProjectBars = !releaseSlug && project === 'all' && projects.length > 1
   const barsData: BarDatum[] = showProjectBars
     ? projects.slice(0, 8).map((p) => ({ key: p.key, name: p.label, value: p.spend, platform: '' })).filter((d) => d.value > 0)
     : groups.slice(0, 6).map((g) => ({
@@ -890,14 +903,18 @@ export default function MetricsDashboard({ artistSlug, artistName }: { artistSlu
 
   const rangeLabel = custom ? `${fmtDateEs(custom.from)} – ${fmtDateEs(custom.to)}` : (PERIOD_LABEL[days] ?? 'Período')
   const rangeKey = custom ? `${custom.from}_${custom.to}` : `d${days}`
-  const periodLabel = rangeLabel + (selectedProject ? ` · ${selectedProject.label}` : '')
+  const periodLabel = rangeLabel + (
+    releaseTitle ? ` · ${releaseTitle}` : selectedProject ? ` · ${selectedProject.label}` : ''
+  )
 
   const globalSpend = metrics.reduce((s, m) => s + (m.total_spend ?? 0), 0)
 
   // ── Exportar CSV: exactamente lo que el PM está viendo (filtros aplicados) ──
   const exportFilename = (kind: string) => {
     const plat = tab === 'all' ? 'todas' : slugify(PLAT_LABEL[tab] ?? tab)
-    const proj = selectedProject ? `-${slugify(selectedProject.label)}` : ''
+    const proj = releaseSlug
+      ? `-${slugify(releaseSlug)}`
+      : selectedProject ? `-${slugify(selectedProject.label)}` : ''
     const range = custom ? `${custom.from}_a_${custom.to}` : `ultimos-${days}-dias`
     return `rimas-${artistSlug}${proj}-${plat}-${range}-${kind}.csv`
   }
@@ -1077,19 +1094,19 @@ export default function MetricsDashboard({ artistSlug, artistName }: { artistSlu
           impressions={totals.impressions}
           spend={totals.spend}
           activeCount={activeCount}
-          topProject={projects[0] ?? null}
+          topProject={releaseSlug ? null : (projects[0] ?? null)}
         />
       )}
 
       {/* Proyecto / canción */}
-      {!loading && projects.length > 1 && (
+      {!loading && !releaseSlug && projects.length > 1 && (
         <ProjectChips projects={projects} selected={project} onSelect={setProject} globalSpend={globalSpend} />
       )}
 
       {/* Resumen general */}
       <section>
         <SectionHeader
-          title={selectedProject ? selectedProject.label : 'Resumen General'}
+          title={releaseTitle ? releaseTitle : selectedProject ? selectedProject.label : 'Resumen General'}
           subtitle={periodLabel}
         />
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -1110,6 +1127,8 @@ export default function MetricsDashboard({ artistSlug, artistName }: { artistSlu
                 subtitle={
                   showProjectBars
                     ? 'Toca una barra para ver esa canción'
+                    : releaseTitle
+                    ? `Campañas de ${releaseTitle}`
                     : selectedProject
                     ? `Campañas de ${selectedProject.label}`
                     : 'Top campañas del período'
@@ -1147,15 +1166,23 @@ export default function MetricsDashboard({ artistSlug, artistName }: { artistSlu
           subtitle={
             loading
               ? artistName
-              : `${artistName}${selectedProject ? ` · ${selectedProject.label}` : ''} · ${groups.length} en total · ${activeCount} activas`
+              : `${artistName}${
+                  releaseTitle ? ` · ${releaseTitle}` : selectedProject ? ` · ${selectedProject.label}` : ''
+                } · ${groups.length} en total · ${activeCount} activas`
           }
         />
         {loading ? (
           <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} />)}</div>
         ) : metrics.length === 0 ? (
           <div className="border border-[#e6e6e8] bg-white rounded-2xl p-16 text-center shadow-[var(--shadow-card)]">
-            <p className="text-[#5b5b63] text-xs uppercase tracking-widest" style={C}>Sin datos para este período</p>
-            <p className="text-[#c4c4c8] text-xs mt-2" style={C}>El escenario está listo — pronto habrá números</p>
+            <p className="text-[#5b5b63] text-xs uppercase tracking-widest" style={C}>
+              {releaseTitle ? `Sin campañas de «${releaseTitle}» en este período` : 'Sin datos para este período'}
+            </p>
+            <p className="text-[#c4c4c8] text-xs mt-2" style={C}>
+              {releaseTitle
+                ? 'Cuando haya campañas sincronizadas de este lanzamiento, aparecen aquí'
+                : 'El escenario está listo — pronto habrá números'}
+            </p>
           </div>
         ) : (
           <div className="space-y-3">

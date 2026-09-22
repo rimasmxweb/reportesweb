@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { getArtistBySlug } from '@/lib/config'
 import { getArtistMetrics } from '@/lib/campaignData'
+import { filterMetricsForRelease, getRelease } from '@/lib/releases'
 
 export async function GET(
   request: NextRequest,
@@ -35,11 +36,17 @@ export async function GET(
     dateFrom = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10)
   }
 
+  const releaseParam = searchParams.get('release')
+  const release = releaseParam ? getRelease(artist.slug, releaseParam) : undefined
+  if (releaseParam && !release) {
+    return NextResponse.json({ error: 'Lanzamiento no encontrado' }, { status: 404 })
+  }
+
   try {
     const metrics = await getArtistMetrics(artist, dateFrom, platform, dateTo)
     return NextResponse.json({
       artist: { id: artist.id, name: artist.name, slug: artist.slug },
-      metrics,
+      metrics: release ? filterMetricsForRelease(metrics, release) : metrics,
     })
   } catch (err) {
     console.error('[api/metrics]', err)
