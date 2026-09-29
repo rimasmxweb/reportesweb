@@ -24,7 +24,7 @@ function normalize(s: string) {
   return s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
 }
 
-export default function ArtistGrid({ artists }: { artists: Artist[] }) {
+export default function ArtistGrid({ artists, showSearch = true }: { artists: Artist[]; showSearch?: boolean }) {
   const [query, setQuery] = useState('')
 
   const filtered = useMemo(() => {
@@ -35,8 +35,7 @@ export default function ArtistGrid({ artists }: { artists: Artist[] }) {
 
   return (
     <div>
-      {/* Buscador */}
-      <div className="mb-5 max-w-md">
+      {showSearch && <div className="mb-5 max-w-md">
         <div className="relative">
           <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9b9ba3] text-sm pointer-events-none">⌕</span>
           <input
@@ -62,7 +61,7 @@ export default function ArtistGrid({ artists }: { artists: Artist[] }) {
             Mostrando {filtered.length} de {artists.length}
           </p>
         )}
-      </div>
+      </div>}
 
       {filtered.length === 0 ? (
         <div className="border border-[#e6e6e8] bg-white rounded-2xl p-10 text-center shadow-[var(--shadow-card)]">

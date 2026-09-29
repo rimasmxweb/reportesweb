@@ -106,8 +106,10 @@ export async function GET(request: NextRequest) {
           total_spend: round(spendUsd, 4),
           ctr: round(r.ctr * 100, 4),
           cpm: round(toUsd(r.cpm, r.currency, rates) ?? 0, 4),
+          // thruviews = reproducciones pagadas. Las vistas públicas del canal
+          // no salen de esta sincronización y no se copian desde la pauta.
           thruviews: r.videoViews,
-          public_views: r.videoViews,
+          public_views: null,
           subscriber_conversions: isSubs ? conv : 0,
           follow_on_view_conversions: isFollow ? conv : 0,
           video_retention: r.p100 != null ? round(r.p100 * 100, 2) : null,

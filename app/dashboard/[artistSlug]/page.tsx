@@ -4,8 +4,9 @@ import { getArtistBySlug } from '@/lib/config'
 import Link from 'next/link'
 import Image from 'next/image'
 import MetricsDashboard from './MetricsDashboard'
-import ReleaseStrip from './ReleaseStrip'
+import ReleaseMarketing from './ReleaseMarketing'
 import { photoSrc } from '@/lib/artistPhotos'
+import { getLatestActiveRelease, getReleasesForArtist, releaseTypeLabel } from '@/lib/releases'
 
 const CONDENSED = { fontFamily: "'Barlow Condensed', sans-serif" }
 
@@ -21,6 +22,17 @@ export default async function ArtistDashboardPage({
   const artist = getArtistBySlug(artistSlug)
 
   if (!artist || !session.artistIds.includes(artist.id)) notFound()
+
+  const releases = getReleasesForArtist(artist.slug)
+  const latest = getLatestActiveRelease(artist.slug)
+  const releaseCards = releases.map((release) => ({
+    slug: release.slug,
+    title: release.title,
+    typeLabel: releaseTypeLabel(release.type),
+    active: release.active,
+    campaignStart: release.campaignStart,
+    publicYoutubeViews: release.publicYoutubeViews,
+  }))
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg-page)' }}>
@@ -38,7 +50,7 @@ export default async function ArtistDashboardPage({
             className="link-sweep text-[#888] hover:text-white text-xs uppercase tracking-widest transition-colors hidden sm:inline pb-0.5"
             style={CONDENSED}
           >
-            Artistas
+            Perfil
           </Link>
 
           <span className="text-[#3a3a3a] text-lg shrink-0">/</span>
@@ -93,9 +105,17 @@ export default async function ArtistDashboardPage({
         </div>
       )}
 
-      <ReleaseStrip artistSlug={artist.slug} />
-
-      <MetricsDashboard artistSlug={artistSlug} artistName={artist.name} />
+      {releaseCards.length > 0 ? (
+        <ReleaseMarketing
+          key={latest?.slug ?? releaseCards[0].slug}
+          artistSlug={artist.slug}
+          releases={releaseCards}
+          selectedSlug={latest?.slug ?? releaseCards[0].slug}
+          latestActiveSlug={latest?.slug ?? null}
+        />
+      ) : (
+        <MetricsDashboard artistSlug={artistSlug} artistName={artist.name} />
+      )}
     </div>
   )
 }

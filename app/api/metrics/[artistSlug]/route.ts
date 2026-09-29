@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { getArtistBySlug } from '@/lib/config'
-import { getArtistMetrics } from '@/lib/campaignData'
-import { filterMetricsForRelease, getRelease } from '@/lib/releases'
+import { getArtistMetrics, getLatestSyncAt } from '@/lib/campaignData'
+import { getFxRates } from '@/lib/fx'
+import { campaignMatchesRelease, filterMetricsForRelease, getRelease } from '@/lib/releases'
 
 export async function GET(
   request: NextRequest,
@@ -44,9 +45,31 @@ export async function GET(
 
   try {
     const metrics = await getArtistMetrics(artist, dateFrom, platform, dateTo)
+    const filtered = release ? filterMetricsForRelease(metrics, release) : metrics
+
+    let syncedAt: string | null = null
+    try {
+      syncedAt = await getLatestSyncAt(
+        artist.id,
+        release ? (name) => campaignMatchesRelease(name, release) : undefined
+      )
+    } catch (err) {
+      console.error('[api/metrics] corte', err)
+    }
+
+    let usdToMxn: number | null = null
+    try {
+      const mxn = (await getFxRates()).MXN
+      usdToMxn = typeof mxn === 'number' && Number.isFinite(mxn) && mxn > 0 ? mxn : null
+    } catch (err) {
+      console.error('[api/metrics] tipo de cambio', err)
+    }
+
     return NextResponse.json({
       artist: { id: artist.id, name: artist.name, slug: artist.slug },
-      metrics: release ? filterMetricsForRelease(metrics, release) : metrics,
+      metrics: filtered,
+      syncedAt,
+      usdToMxn,
     })
   } catch (err) {
     console.error('[api/metrics]', err)

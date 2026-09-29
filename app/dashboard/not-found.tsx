@@ -19,7 +19,7 @@ export default function DashboardNotFound() {
         className="mt-8 inline-flex items-center h-10 px-5 rounded-full text-white text-xs uppercase tracking-widest font-bold"
         style={{ ...C, background: 'var(--grad-encendido)', boxShadow: 'var(--shadow-red-glow)' }}
       >
-        Volver a artistas
+        Volver al perfil
       </Link>
     </div>
   )

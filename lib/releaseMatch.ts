@@ -8,14 +8,18 @@ export type NamePattern = {
   mode: NameMatchMode
 }
 
-export type ReleaseType = 'single'
+export type ReleaseType = 'single' | 'ep' | 'album'
 
 export type Release = {
+  id: string
   artistSlug: string
   artistId: string
   slug: string
   type: ReleaseType
   title: string
+  active: boolean
+  campaignStart: string
+  publicYoutubeViews: number | null
   nameContains: NamePattern[]
   mapping: string
 }

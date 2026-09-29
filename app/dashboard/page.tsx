@@ -47,7 +47,7 @@ export default async function DashboardPage() {
         <div className="flex items-center gap-3 min-w-0">
           <Image src="/logo-rimas.png" alt="Rimas" width={90} height={22} priority style={{ height: 'auto', width: 'auto' }} className="w-20 sm:w-[100px]" />
           <span className="text-[#3a3a3a] text-xs mx-1 hidden sm:inline">|</span>
-          <span className="text-[#888] text-xs uppercase tracking-widest hidden sm:inline" style={C}>Campaign Dashboard</span>
+          <span className="text-[#888] text-xs uppercase tracking-widest hidden sm:inline" style={C}>Perfil</span>
         </div>
         <div className="flex items-center gap-4 sm:gap-6 shrink-0">
           <span className="text-[#888] text-xs hidden sm:inline truncate max-w-[140px]" style={C}>{session.pmName}</span>
@@ -64,13 +64,21 @@ export default async function DashboardPage() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
+        <p className="text-[#E8192C] text-[10px] uppercase tracking-[0.28em] font-bold mb-2" style={C}>
+          Rimas MX
+        </p>
+        <h1 className="text-[#0a0a0b] text-4xl sm:text-5xl font-black uppercase tracking-wide leading-none" style={C}>
+          {session.pmName}
+        </h1>
+        <p className="text-[#5b5b63] text-sm mt-2 mb-8">Responsable de proyecto</p>
+
         <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
           <div className="w-1 h-7 bg-[#E8192C] rounded-full" />
-          <h1 className="text-[#0a0a0b] text-2xl sm:text-3xl font-black uppercase tracking-wide" style={C}>
-            Tus Artistas
-          </h1>
+          <h2 className="text-[#0a0a0b] text-2xl sm:text-3xl font-black uppercase tracking-wide" style={C}>
+            Tus artistas
+          </h2>
           <span className="text-[#9b9ba3] text-sm ml-1" style={C}>
-            {artistData.length} activos
+            {artistData.length === 1 ? '1 artista' : `${artistData.length} artistas`}
           </span>
         </div>
 
@@ -81,7 +89,7 @@ export default async function DashboardPage() {
             </p>
           </div>
         ) : (
-          <ArtistGrid artists={artistData} />
+          <ArtistGrid artists={artistData} showSearch={artistData.length > 1} />
         )}
       </main>
     </div>

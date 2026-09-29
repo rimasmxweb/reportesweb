@@ -29,7 +29,7 @@ type Metric = {
   ctr: number | null
   cpm: number | null
   frequency: number | null
-  public_views: number
+  public_views: number | null
   thruviews: number
   subscriber_conversions: number
   follow_on_view_conversions: number
@@ -57,6 +57,11 @@ const C = { fontFamily: "'Barlow Condensed', sans-serif" }
 
 const PLAT_LABEL: Record<string, string> = {
   google_youtube: 'YouTube', meta: 'Meta', tiktok: 'TikTok',
+}
+const YT_KIND: Record<string, string> = {
+  follow_on_views: 'vistas',
+  subscribers: 'suscriptores',
+  thruview: 'vistas',
 }
 const PLAT_COLOR: Record<string, string> = {
   google_youtube: '#FF0000', meta: '#1877F2', tiktok: '#111827',
@@ -464,7 +469,7 @@ function spendByPlatform(metrics: Metric[]) {
 }
 
 // Embudo de audiencia para YouTube, usando columnas confiables.
-// Impresiones → Reproducciones (ThruViews) → Vieron completo (impresiones × retención).
+// Impresiones → reproducciones pagadas → vieron completo (impresiones × retención).
 function retentionFunnel(metrics: Metric[]) {
   let impr = 0, views = 0, completed = 0
   for (const m of metrics) {
@@ -679,7 +684,7 @@ function CampaignRow({ group, index = 0 }: { group: CampaignGroup; index?: numbe
             <StatusBadge status={campaign.status} />
             <span className="text-[#9b9ba3] text-[9px] uppercase tracking-[0.18em] font-bold truncate" style={C}>
               {PLAT_LABEL[campaign.platform] ?? campaign.platform}
-              {campaign.youtube_type ? ` · ${campaign.youtube_type.replace(/_/g, ' ')}` : ''}
+              {campaign.youtube_type ? ` · ${YT_KIND[campaign.youtube_type] ?? 'vistas'}` : ''}
             </span>
           </div>
           <p className="text-[#0a0a0b] text-sm font-bold uppercase tracking-wide leading-tight" style={C}>{campaign.name}</p>
@@ -834,7 +839,6 @@ export default function MetricsDashboard({
     impressions: filtered.reduce((s, m) => s + (m.impressions ?? 0), 0),
     spend: filtered.reduce((s, m) => s + (m.total_spend ?? 0), 0),
     reach: filtered.reduce((s, m) => s + (m.reach ?? 0), 0),
-    views: filtered.reduce((s, m) => s + (m.public_views ?? 0), 0),
     thruviews: filtered.reduce((s, m) => s + (m.thruviews ?? 0), 0),
     thruplay: filtered.reduce((s, m) => s + (m.thruplay ?? 0), 0),
     results: filtered.reduce((s, m) => s + (m.result_count ?? 0), 0),
@@ -867,8 +871,7 @@ export default function MetricsDashboard({
     ? [
         mk('Vistas', totals.impressions, 'number', (m) => m.impressions ?? 0),
         hero,
-        mk('Vistas Completas', totals.thruviews, 'number', (m) => m.thruviews ?? 0),
-        mk('Vistas Públicas', totals.views, 'number', (m) => m.public_views ?? 0),
+        mk('Reproducciones', totals.thruviews, 'number', (m) => m.thruviews ?? 0),
       ]
     : isSocial
     ? [
@@ -926,7 +929,7 @@ export default function MetricsDashboard({
       'Campaña', 'Plataforma', 'Canción / Proyecto', 'Estado',
       'Vistas (impresiones)', 'Invertido (USD)', '% Clics prom.',
       'Vistas completas', 'Retención prom. %', 'Personas únicas',
-      'Videos vistos (ThruPlay)', 'Resultados', 'Días con datos', 'Del', 'Al',
+      'Reproducciones', 'Resultados', 'Días con datos', 'Del', 'Al',
     ]]
     for (const g of groups) {
       const sorted = [...g.metrics].sort((a, b) => a.date.localeCompare(b.date))
@@ -961,7 +964,7 @@ export default function MetricsDashboard({
       'Fecha', 'Campaña', 'Plataforma', 'Canción / Proyecto',
       'Vistas (impresiones)', 'Invertido (USD)', '% Clics', 'CPM (USD)',
       'Vistas completas', 'Retención %', 'Personas únicas',
-      'Videos vistos (ThruPlay)', 'Resultados', 'Costo por resultado (USD)',
+      'Reproducciones', 'Resultados', 'Costo por resultado (USD)',
     ]]
     const sorted = [...filtered].sort((a, b) =>
       a.date === b.date ? a.campaigns.name.localeCompare(b.campaigns.name) : a.date.localeCompare(b.date)

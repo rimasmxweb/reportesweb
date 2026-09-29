@@ -13,10 +13,12 @@ type Catalog = {
 }
 
 const MODES: NameMatchMode[] = ['contains', 'token']
-const TYPES: ReleaseType[] = ['single']
+const TYPES: ReleaseType[] = ['single', 'ep', 'album']
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
 function assertCatalog(releases: Release[]) {
-  const seen = new Set<string>()
+  const seenSlug = new Set<string>()
+  const seenId = new Set<string>()
   for (const release of releases) {
     const artist = getArtistBySlug(release.artistSlug)
     if (!artist) {
@@ -30,13 +32,32 @@ function assertCatalog(releases: Release[]) {
       )
     }
     const key = `${release.artistSlug}/${release.slug}`
-    if (seen.has(key)) throw new Error(`Catálogo de lanzamientos: slug repetido ${key}`)
-    seen.add(key)
+    if (seenSlug.has(key)) throw new Error(`Catálogo de lanzamientos: slug repetido ${key}`)
+    seenSlug.add(key)
     if (!TYPES.includes(release.type)) {
       throw new Error(`Catálogo de lanzamientos: tipo no soportado en «${release.slug}»`)
     }
+    if (!release.id?.trim()) {
+      throw new Error(`Catálogo de lanzamientos: falta el id en «${release.slug}»`)
+    }
+    if (seenId.has(release.id)) {
+      throw new Error(`Catálogo de lanzamientos: id repetido en «${release.slug}»`)
+    }
+    seenId.add(release.id)
     if (!release.title?.trim()) {
       throw new Error(`Catálogo de lanzamientos: falta el título en «${release.slug}»`)
+    }
+    if (typeof release.active !== 'boolean') {
+      throw new Error(`Catálogo de lanzamientos: active debe ser sí o no en «${release.slug}»`)
+    }
+    if (!DATE_RE.test(release.campaignStart ?? '')) {
+      throw new Error(`Catálogo de lanzamientos: campaignStart inválido en «${release.slug}»`)
+    }
+    if (
+      release.publicYoutubeViews != null &&
+      (!Number.isFinite(release.publicYoutubeViews) || release.publicYoutubeViews < 0)
+    ) {
+      throw new Error(`Catálogo de lanzamientos: vistas públicas inválidas en «${release.slug}»`)
     }
     if (!release.nameContains?.length) {
       throw new Error(`Catálogo de lanzamientos: «${release.slug}» no define nameContains`)
@@ -65,6 +86,18 @@ export function getRelease(artistSlug: string, releaseSlug: string): Release | u
   )
 }
 
+// El hero del artista usa solo este lanzamiento: el activo con el inicio de
+// campaña más reciente. No suma vistas entre lanzamientos.
+export function getLatestActiveRelease(artistSlug: string): Release | undefined {
+  return getReleasesForArtist(artistSlug)
+    .filter((release) => release.active)
+    .sort((a, b) => {
+      const byStart = b.campaignStart.localeCompare(a.campaignStart)
+      if (byStart !== 0) return byStart
+      return a.slug.localeCompare(b.slug)
+    })[0]
+}
+
 export function campaignMatchesRelease(campaignName: string, release: Release): boolean {
   return campaignNameMatches(campaignName, release.nameContains)
 }
@@ -78,6 +111,8 @@ export function filterMetricsForRelease<T extends { campaigns: { name: string } 
 
 export function releaseTypeLabel(type: ReleaseType): string {
   if (type === 'single') return 'Sencillo'
+  if (type === 'ep') return 'EP'
+  if (type === 'album') return 'Álbum'
   return type
 }
 

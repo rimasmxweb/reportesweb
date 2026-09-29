@@ -2,10 +2,10 @@ import { redirect, notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getSession } from '@/lib/auth'
 import { getArtistBySlug } from '@/lib/config'
-import { getRelease, releaseTypeLabel } from '@/lib/releases'
+import { getLatestActiveRelease, getRelease, getReleasesForArtist, releaseTypeLabel } from '@/lib/releases'
 import Link from 'next/link'
 import Image from 'next/image'
-import MetricsDashboard from '../MetricsDashboard'
+import ReleaseMarketing from '../ReleaseMarketing'
 import { photoSrc } from '@/lib/artistPhotos'
 
 const CONDENSED = { fontFamily: "'Barlow Condensed', sans-serif" }
@@ -56,7 +56,7 @@ export default async function ReleaseDashboardPage({
             className="link-sweep text-[#888] hover:text-white text-xs uppercase tracking-widest transition-colors hidden sm:inline pb-0.5"
             style={CONDENSED}
           >
-            Artistas
+            Perfil
           </Link>
 
           <span className="text-[#3a3a3a] text-lg shrink-0">/</span>
@@ -118,11 +118,19 @@ export default async function ReleaseDashboardPage({
         </div>
       )}
 
-      <MetricsDashboard
+      <ReleaseMarketing
+        key={release.slug}
         artistSlug={artist.slug}
-        artistName={artist.name}
-        releaseSlug={release.slug}
-        releaseTitle={release.title}
+        releases={getReleasesForArtist(artist.slug).map((item) => ({
+          slug: item.slug,
+          title: item.title,
+          typeLabel: releaseTypeLabel(item.type),
+          active: item.active,
+          campaignStart: item.campaignStart,
+          publicYoutubeViews: item.publicYoutubeViews,
+        }))}
+        selectedSlug={release.slug}
+        latestActiveSlug={getLatestActiveRelease(artist.slug)?.slug ?? null}
       />
     </div>
   )
