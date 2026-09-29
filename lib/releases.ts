@@ -4,6 +4,7 @@ import {
   campaignNameMatches,
   type NameMatchMode,
   type Release,
+  type ReleasePhase,
   type ReleaseType,
 } from './releaseMatch'
 
@@ -71,6 +72,29 @@ function assertCatalog(releases: Release[]) {
     if (release.publicViewsFetchedAt != null && Number.isNaN(Date.parse(release.publicViewsFetchedAt))) {
       throw new Error(`Catálogo de lanzamientos: fecha de vistas públicas inválida en «${release.slug}»`)
     }
+    if (release.song != null && !release.song.trim()) {
+      throw new Error(`Catálogo de lanzamientos: canción vacía en «${release.slug}»`)
+    }
+    if (release.piece != null && !release.piece.trim()) {
+      throw new Error(`Catálogo de lanzamientos: pieza vacía en «${release.slug}»`)
+    }
+    if (release.note != null && !release.note.trim()) {
+      throw new Error(`Catálogo de lanzamientos: nota vacía en «${release.slug}»`)
+    }
+    if (release.phases != null) {
+      if (!Array.isArray(release.phases)) {
+        throw new Error(`Catálogo de lanzamientos: fases inválidas en «${release.slug}»`)
+      }
+      const seenPhase = new Set<string>()
+      for (const phase of release.phases) {
+        assertPhase(release.slug, phase)
+        const key = `${phase.date}|${phase.title}`
+        if (seenPhase.has(key)) {
+          throw new Error(`Catálogo de lanzamientos: fase repetida en «${release.slug}»`)
+        }
+        seenPhase.add(key)
+      }
+    }
     if (!release.nameContains?.length) {
       throw new Error(`Catálogo de lanzamientos: «${release.slug}» no define nameContains`)
     }
@@ -82,6 +106,15 @@ function assertCatalog(releases: Release[]) {
         throw new Error(`Catálogo de lanzamientos: patrón vacío en «${release.slug}»`)
       }
     }
+  }
+}
+
+function assertPhase(slug: string, phase: ReleasePhase) {
+  if (!DATE_RE.test(phase?.date ?? '')) {
+    throw new Error(`Catálogo de lanzamientos: fecha de fase inválida en «${slug}»`)
+  }
+  if (!phase.title?.trim() || !phase.detail?.trim()) {
+    throw new Error(`Catálogo de lanzamientos: fase incompleta en «${slug}»`)
   }
 }
 

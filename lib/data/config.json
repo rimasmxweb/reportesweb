@@ -197,7 +197,9 @@
       "name": "Nilka Suarez",
       "email": "nilka.suarez@rimasmx.com",
       "accessCode": "RIMAS-NS",
+      "featuredArtistId": "df9cf493-a826-4a0d-8680-e278b148eb48",
       "artistIds": [
+        "df9cf493-a826-4a0d-8680-e278b148eb48",
         "bd3605ed-4942-4364-b202-0b18a354ce55"
       ]
     }

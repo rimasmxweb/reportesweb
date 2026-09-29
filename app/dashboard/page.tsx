@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth'
-import { getArtists } from '@/lib/config'
+import { assignedArtistIds } from '@/lib/access'
+import { getArtists, getPmById } from '@/lib/config'
 import { getActivePlatformsByArtist } from '@/lib/campaignData'
 import Image from 'next/image'
 import { photoSrc } from '@/lib/artistPhotos'
@@ -13,7 +14,9 @@ export default async function DashboardPage() {
   const session = await getSession()
   if (!session) redirect('/login')
 
-  const artists = getArtists().filter((a) => session.artistIds.includes(a.id))
+  const artistIds = assignedArtistIds(session)
+  const artists = getArtists().filter((a) => artistIds.includes(a.id))
+  const featuredId = getPmById(session.pmId)?.featuredArtistId
 
   let platformsByArtist = new Map<string, Set<string>>()
   try {
@@ -30,7 +33,11 @@ export default async function DashboardPage() {
       photo: photoSrc(a.slug),
       platforms: [...(platformsByArtist.get(a.id) ?? [])],
     }))
-    .sort((a, b) => a.name.localeCompare(b.name))
+    .sort((a, b) => {
+      if (featuredId && a.id === featuredId) return -1
+      if (featuredId && b.id === featuredId) return 1
+      return a.name.localeCompare(b.name, 'es')
+    })
 
   async function logout() {
     'use server'
@@ -89,7 +96,7 @@ export default async function DashboardPage() {
             </p>
           </div>
         ) : (
-          <ArtistGrid artists={artistData} showSearch={artistData.length > 1} />
+          <ArtistGrid artists={artistData} showSearch={artistData.length > 1} featuredId={featuredId} />
         )}
       </main>
     </div>

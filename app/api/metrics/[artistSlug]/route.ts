@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
+import { assignedArtistIds } from '@/lib/access'
 import { getArtistBySlug } from '@/lib/config'
 import { getArtistMetrics, getLatestSyncAt } from '@/lib/campaignData'
 import { getFxRates } from '@/lib/fx'
@@ -15,7 +16,7 @@ export async function GET(
   const { artistSlug } = await params
   const artist = getArtistBySlug(artistSlug)
 
-  if (!artist || !session.artistIds.includes(artist.id)) {
+  if (!artist || !assignedArtistIds(session).includes(artist.id)) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
   }
 

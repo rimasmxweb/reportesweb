@@ -1,12 +1,15 @@
 import { redirect, notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getSession } from '@/lib/auth'
+import { assignedArtistIds } from '@/lib/access'
 import { getArtistBySlug } from '@/lib/config'
 import { getLatestActiveRelease, getRelease, getReleasesForArtist, releaseTypeLabel } from '@/lib/releases'
 import { displayPublicViews, readStoredPublicViews } from '@/lib/publicViews'
 import Link from 'next/link'
 import Image from 'next/image'
 import ReleaseMarketing from '../ReleaseMarketing'
+import FamaView from '../fama/FamaView'
+import { toFamaReleaseCards } from '@/lib/famaCards'
 import { photoSrc } from '@/lib/artistPhotos'
 
 const CONDENSED = { fontFamily: "'Barlow Condensed', sans-serif" }
@@ -20,7 +23,7 @@ export async function generateMetadata({
   const { artistSlug, releaseSlug } = await params
   const artist = getArtistBySlug(artistSlug)
   const release = artist ? getRelease(artist.slug, releaseSlug) : undefined
-  if (!session || !artist || !release || !session.artistIds.includes(artist.id)) {
+  if (!session || !artist || !release || !assignedArtistIds(session).includes(artist.id)) {
     return { title: 'Rimas MX' }
   }
   return { title: `${release.title} — ${artist.name} · Rimas MX` }
@@ -37,11 +40,27 @@ export default async function ReleaseDashboardPage({
   const { artistSlug, releaseSlug } = await params
   const artist = getArtistBySlug(artistSlug)
   const release = artist ? getRelease(artist.slug, releaseSlug) : undefined
+  const artistIds = assignedArtistIds(session)
 
-  if (!artist || !release || !session.artistIds.includes(artist.id)) notFound()
+  if (!artist || !release || !artistIds.includes(artist.id)) notFound()
 
   const artistReleases = getReleasesForArtist(artist.slug)
   const storedViews = await readStoredPublicViews(artistReleases.map((item) => item.id))
+
+  if (artist.slug === 'fama') {
+    return (
+      <FamaView
+        artistName={artist.name}
+        artistSlug={artist.slug}
+        pmName={session.pmName}
+        photo={photoSrc(artist.slug)}
+        releases={toFamaReleaseCards(artistReleases, storedViews)}
+        selectedSlug={release.slug}
+        latestActiveSlug={getLatestActiveRelease(artist.slug)?.slug ?? null}
+        crumb={release.title}
+      />
+    )
+  }
 
   const photo = photoSrc(artistSlug)
 

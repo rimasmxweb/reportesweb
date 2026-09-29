@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSession, setSessionCookie } from '@/lib/auth'
-import { getPmByAccessCode } from '@/lib/config'
+import { getPmByAccessCode, landingPathForPm } from '@/lib/config'
 
 export async function POST(request: NextRequest) {
   const { code } = await request.json()
@@ -23,5 +23,5 @@ export async function POST(request: NextRequest) {
 
   await setSessionCookie(token)
 
-  return NextResponse.json({ ok: true, name: pm.name })
+  return NextResponse.json({ ok: true, name: pm.name, landing: landingPathForPm(pm) })
 }

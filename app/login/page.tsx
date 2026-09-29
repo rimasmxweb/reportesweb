@@ -32,7 +32,10 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/dashboard')
+    const landing = typeof data.landing === 'string' && data.landing.startsWith('/dashboard')
+      ? data.landing
+      : '/dashboard'
+    router.push(landing)
   }
 
   return (

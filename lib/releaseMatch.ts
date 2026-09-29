@@ -10,6 +10,12 @@ export type NamePattern = {
 
 export type ReleaseType = 'single' | 'ep' | 'album'
 
+export type ReleasePhase = {
+  date: string
+  title: string
+  detail: string
+}
+
 export type Release = {
   id: string
   artistSlug: string
@@ -17,6 +23,9 @@ export type Release = {
   slug: string
   type: ReleaseType
   title: string
+  song?: string
+  piece?: string
+  note?: string
   active: boolean
   campaignStart: string
   youtubeVideoId: string | null
@@ -24,6 +33,7 @@ export type Release = {
   publicViewsFetchedAt: string | null
   nameContains: NamePattern[]
   mapping: string
+  phases?: ReleasePhase[]
 }
 
 export function normalizeCampaignName(text: string): string {

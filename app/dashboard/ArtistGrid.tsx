@@ -24,7 +24,15 @@ function normalize(s: string) {
   return s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
 }
 
-export default function ArtistGrid({ artists, showSearch = true }: { artists: Artist[]; showSearch?: boolean }) {
+export default function ArtistGrid({
+  artists,
+  showSearch = true,
+  featuredId,
+}: {
+  artists: Artist[]
+  showSearch?: boolean
+  featuredId?: string
+}) {
   const [query, setQuery] = useState('')
 
   const filtered = useMemo(() => {
@@ -75,7 +83,9 @@ export default function ArtistGrid({ artists, showSearch = true }: { artists: Ar
             <Link
               key={artist.id}
               href={`/dashboard/${artist.slug}`}
-              className="group relative aspect-[4/5] rounded-[20px] overflow-hidden bg-[#1a1a1a] block hover:-translate-y-1 hover:ring-2 hover:ring-[#E8192C]/60 active:scale-[0.98] transition-all duration-300 animate-rise"
+              className={`group relative aspect-[4/5] rounded-[20px] overflow-hidden bg-[#1a1a1a] block hover:-translate-y-1 hover:ring-2 hover:ring-[#E8192C]/60 active:scale-[0.98] transition-all duration-300 animate-rise ${
+                artist.id === featuredId ? 'ring-2 ring-[#E8192C]' : ''
+              }`}
               style={{ '--stagger': Math.min(index, 10) } as React.CSSProperties}
             >
               {artist.photo ? (
@@ -101,6 +111,15 @@ export default function ArtistGrid({ artists, showSearch = true }: { artists: Ar
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
               {/* Contenido */}
+              {artist.id === featuredId && (
+                <span
+                  className="absolute top-3 left-3 z-10 bg-white text-[#0a0a0b] text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded-full"
+                  style={C}
+                >
+                  Principal
+                </span>
+              )}
+
               <div className="absolute bottom-0 inset-x-0 p-3">
                 <p
                   className="text-white text-2xl font-black uppercase leading-none group-hover:text-[#FF5A3C] transition-colors"

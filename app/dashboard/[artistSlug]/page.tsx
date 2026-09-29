@@ -1,10 +1,13 @@
 import { redirect, notFound } from 'next/navigation'
 import { getSession } from '@/lib/auth'
+import { assignedArtistIds } from '@/lib/access'
 import { getArtistBySlug } from '@/lib/config'
 import Link from 'next/link'
 import Image from 'next/image'
 import MetricsDashboard from './MetricsDashboard'
 import ReleaseMarketing from './ReleaseMarketing'
+import FamaView from './fama/FamaView'
+import { toFamaReleaseCards } from '@/lib/famaCards'
 import { photoSrc } from '@/lib/artistPhotos'
 import { getLatestActiveRelease, getReleasesForArtist, releaseTypeLabel } from '@/lib/releases'
 import { displayPublicViews, readStoredPublicViews } from '@/lib/publicViews'
@@ -21,8 +24,9 @@ export default async function ArtistDashboardPage({
 
   const { artistSlug } = await params
   const artist = getArtistBySlug(artistSlug)
+  const artistIds = assignedArtistIds(session)
 
-  if (!artist || !session.artistIds.includes(artist.id)) notFound()
+  if (!artist || !artistIds.includes(artist.id)) notFound()
 
   const releases = getReleasesForArtist(artist.slug)
   const latest = getLatestActiveRelease(artist.slug)
@@ -35,6 +39,21 @@ export default async function ArtistDashboardPage({
     campaignStart: release.campaignStart,
     ...displayPublicViews(release, storedViews.get(release.id)),
   }))
+
+  if (artist.slug === 'fama' && releaseCards.length > 0 && latest) {
+    return (
+      <FamaView
+        artistName={artist.name}
+        artistSlug={artist.slug}
+        pmName={session.pmName}
+        photo={photoSrc(artist.slug)}
+        releases={toFamaReleaseCards(releases, storedViews)}
+        selectedSlug={latest.slug}
+        latestActiveSlug={latest.slug}
+        crumb={null}
+      />
+    )
+  }
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg-page)' }}>
