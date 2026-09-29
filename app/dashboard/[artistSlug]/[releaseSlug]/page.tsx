@@ -48,18 +48,7 @@ export default async function ReleaseDashboardPage({
   const storedViews = await readStoredPublicViews(artistReleases.map((item) => item.id))
 
   if (artist.slug === 'fama') {
-    return (
-      <FamaView
-        artistName={artist.name}
-        artistSlug={artist.slug}
-        pmName={session.pmName}
-        photo={photoSrc(artist.slug)}
-        releases={toFamaReleaseCards(artistReleases, storedViews)}
-        selectedSlug={release.slug}
-        latestActiveSlug={getLatestActiveRelease(artist.slug)?.slug ?? null}
-        crumb={release.title}
-      />
-    )
+    return <FamaView releases={toFamaReleaseCards(artistReleases, storedViews)} />
   }
 
   const photo = photoSrc(artistSlug)

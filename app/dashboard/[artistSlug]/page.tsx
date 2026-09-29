@@ -40,19 +40,8 @@ export default async function ArtistDashboardPage({
     ...displayPublicViews(release, storedViews.get(release.id)),
   }))
 
-  if (artist.slug === 'fama' && releaseCards.length > 0 && latest) {
-    return (
-      <FamaView
-        artistName={artist.name}
-        artistSlug={artist.slug}
-        pmName={session.pmName}
-        photo={photoSrc(artist.slug)}
-        releases={toFamaReleaseCards(releases, storedViews)}
-        selectedSlug={latest.slug}
-        latestActiveSlug={latest.slug}
-        crumb={null}
-      />
-    )
+  if (artist.slug === 'fama' && releases.length > 0) {
+    return <FamaView releases={toFamaReleaseCards(releases, storedViews)} />
   }
 
   return (
