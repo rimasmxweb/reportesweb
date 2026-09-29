@@ -4,6 +4,10 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js'
 // /api/sync escribe, el dashboard lee. Nunca exponer esta key al navegador.
 let client: SupabaseClient | null = null
 
+export function metricsStoreReady(): boolean {
+  return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
+}
+
 export function getDb(): SupabaseClient {
   if (!client) {
     client = createClient(

@@ -42,8 +42,10 @@ export default async function DashboardPage() {
   async function logout() {
     'use server'
     const { clearSession } = await import('@/lib/auth')
+    const { previewLandingPath, previewSkipsAccessGate } = await import('@/lib/previewAccess')
     await clearSession()
-    redirect('/login')
+    // Temporal: en preview, salir no vuelve a la pantalla de código.
+    redirect(previewSkipsAccessGate() ? previewLandingPath() : '/login')
   }
 
   return (

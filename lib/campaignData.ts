@@ -2,7 +2,7 @@
 // El flujo: /api/sync escribe Google Ads → Supabase; aquí solo se lee.
 
 import { Artist, getArtists } from './config'
-import { getDb } from './db'
+import { getDb, metricsStoreReady } from './db'
 import { deriveProject } from './projects'
 
 export type Campaign = {
@@ -140,6 +140,8 @@ export async function getArtistMetrics(
   platform?: string | null,
   dateTo?: string | null
 ): Promise<MetricRow[]> {
+  // Sin credenciales del almacén devolvemos vacío. No bloqueamos el render del preview.
+  if (!metricsStoreReady()) return []
   const db = getDb()
 
   let query = db
@@ -183,6 +185,7 @@ export async function getArtistMetrics(
 
 // Para el grid: plataformas con historial por artista (una sola consulta ligera)
 export async function getActivePlatformsByArtist(): Promise<Map<string, Set<string>>> {
+  if (!metricsStoreReady()) return new Map()
   const db = getDb()
   const { data, error } = await db.from('campaigns').select('artist_id, platform')
   if (error) throw new Error(`Supabase: ${error.message}`)
@@ -199,6 +202,7 @@ export async function getLatestSyncAt(
   artistId: string,
   matches?: (campaignName: string) => boolean
 ): Promise<string | null> {
+  if (!metricsStoreReady()) return null
   const db = getDb()
   const { data, error } = await db
     .from('campaigns')
