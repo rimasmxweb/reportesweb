@@ -6,6 +6,7 @@ import { fetchAllMetaRows, MetaRow, fetchAllCampaignStatuses, isMetaStatusActive
 import { fetchAllTikTokRows, TikTokRow } from '@/lib/windsorTiktok'
 import { getFxRates, toUsd } from '@/lib/fx'
 import { matchArtist, detectYoutubeType } from '@/lib/campaignData'
+import { syncReleasePublicViews } from '@/lib/publicViews'
 
 // Sincroniza Google Ads + Meta + TikTok (vía Windsor) → Supabase. Lo dispara
 // el cron de Vercel (diario) o una llamada manual con ?days=400 para backfill.
@@ -106,8 +107,10 @@ export async function GET(request: NextRequest) {
           total_spend: round(spendUsd, 4),
           ctr: round(r.ctr * 100, 4),
           cpm: round(toUsd(r.cpm, r.currency, rates) ?? 0, 4),
+          // thruviews = reproducciones pagadas. Las vistas públicas del canal
+          // no salen de esta sincronización y no se copian desde la pauta.
           thruviews: r.videoViews,
-          public_views: r.videoViews,
+          public_views: null,
           subscriber_conversions: isSubs ? conv : 0,
           follow_on_view_conversions: isFollow ? conv : 0,
           video_retention: r.p100 != null ? round(r.p100 * 100, 2) : null,
@@ -237,8 +240,10 @@ export async function GET(request: NextRequest) {
     errors.push(`TikTok: ${String(err)}`)
   }
 
+  const youtubePublic = await syncReleasePublicViews()
+
   if (!allCampaignRows.length) {
-    return NextResponse.json({ error: 'Sin datos de ninguna plataforma', errors }, { status: 502 })
+    return NextResponse.json({ error: 'Sin datos de ninguna plataforma', errors, youtubePublic }, { status: 502 })
   }
 
   // ─────────────────────────── Upsert a Supabase ───────────────────────────
@@ -292,6 +297,7 @@ export async function GET(request: NextRequest) {
     collapsedDupes,
     unmatched: [...unmatched].sort(),
     errors,
+    youtubePublic,
     ms: Date.now() - started,
   })
 }

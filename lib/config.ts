@@ -13,6 +13,7 @@ export type ProjectManager = {
   name: string
   email: string
   accessCode: string
+  featuredArtistId?: string
   artistIds: string[]
 }
 
@@ -33,4 +34,23 @@ export function getArtistById(id: string): Artist | undefined {
 export function getPmByAccessCode(code: string): ProjectManager | undefined {
   const normalized = code.trim().toUpperCase()
   return config.projectManagers.find((p) => p.accessCode === normalized)
+}
+
+export function getPmById(id: string): ProjectManager | undefined {
+  return config.projectManagers.find((pm) => pm.id === id)
+}
+
+export function getFeaturedPm(slug: string): ProjectManager | undefined {
+  const artist = getArtistBySlug(slug)
+  if (!artist) return undefined
+  return config.projectManagers.find(
+    (pm) => pm.featuredArtistId === artist.id && pm.artistIds.includes(artist.id)
+  )
+}
+
+export function landingPathForPm(pm: ProjectManager): string {
+  const featuredId = pm.featuredArtistId
+  if (!featuredId || !pm.artistIds.includes(featuredId)) return '/dashboard'
+  const artist = getArtistById(featuredId)
+  return artist ? `/dashboard/${artist.slug}` : '/dashboard'
 }

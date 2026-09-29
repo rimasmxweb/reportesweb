@@ -6,7 +6,7 @@ let cached: { rates: Record<string, number>; expiresAt: number } | null = null
 export async function getFxRates(): Promise<Record<string, number>> {
   if (cached && cached.expiresAt > Date.now()) return cached.rates
   try {
-    const res = await fetch(FX_URL, { cache: 'no-store' })
+    const res = await fetch(FX_URL, { cache: 'no-store', signal: AbortSignal.timeout(4000) })
     if (!res.ok) throw new Error(`FX API respondió ${res.status}`)
     const data = await res.json()
     const rates = data.rates ?? {}

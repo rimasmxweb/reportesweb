@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
+import { previewReadOnlySession, previewSkipsAccessGate } from './previewAccess'
 
 const SECRET = new TextEncoder().encode(process.env.AUTH_SECRET!)
 const COOKIE_NAME = 'rimas_session'
@@ -19,6 +20,12 @@ export async function createSession(payload: SessionPayload) {
 }
 
 export async function getSession(): Promise<SessionPayload | null> {
+  // Temporal: en preview entramos al perfil de FAMA sin código. Producción no pasa por aquí.
+  if (previewSkipsAccessGate()) {
+    const preview = previewReadOnlySession()
+    if (preview) return preview
+  }
+
   const cookieStore = await cookies()
   const token = cookieStore.get(COOKIE_NAME)?.value
   if (!token) return null

@@ -182,3 +182,119 @@ h1, h2, h3, h4 {
     transition-duration: .01ms !important;
   }
 }
+
+/* Vista de FAMA — paleta propia, separada del tablero claro */
+.fama-shell {
+  --fama-bg: #100e12;
+  --fama-card: #161318;
+  --fama-line: rgba(246, 241, 234, 0.12);
+  --fama-text: #f6f1ea;
+  --fama-muted: #b7ada6;
+  --fama-sand: #f0c9a0;
+  min-height: 100vh;
+  color: var(--fama-text);
+  background: var(--fama-bg);
+  font-family: var(--font-fama-body), sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.fama-display {
+  font-family: var(--font-fama-display), sans-serif;
+  letter-spacing: -0.04em;
+}
+
+.fama-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 24px;
+}
+
+.fama-header-link {
+  color: var(--fama-muted);
+  font-size: 14px;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.fama-header-link:hover { color: var(--fama-sand); }
+
+.fama-main {
+  width: min(880px, calc(100% - 32px));
+  margin: 12px auto 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fama-hero-card,
+.fama-release-card {
+  background: var(--fama-card);
+  border: 1px solid var(--fama-line);
+  border-radius: 24px;
+}
+
+.fama-hero-card { padding: 36px 32px 32px; }
+
+.fama-hero-number {
+  margin: 0;
+  font-size: clamp(4.4rem, 12vw, 7.4rem);
+  font-weight: 700;
+  line-height: 0.88;
+  font-variant-numeric: tabular-nums;
+}
+
+.fama-hero-label {
+  margin: 18px 0 0;
+  color: var(--fama-muted);
+  font-size: 15px;
+}
+
+.fama-video-link {
+  display: inline-block;
+  margin-top: 14px;
+  color: var(--fama-sand);
+  font-size: 15px;
+}
+
+.fama-video-link:hover { color: var(--fama-text); }
+
+.fama-days {
+  margin: 0;
+  padding: 0 4px;
+  color: var(--fama-muted);
+  font-size: 15px;
+}
+
+.fama-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.fama-release-card { padding: 20px 22px 18px; }
+
+.fama-release-name {
+  margin: 0;
+  color: var(--fama-muted);
+  font-size: 14px;
+}
+
+.fama-release-number {
+  margin: 10px 0 0;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .fama-header { padding: 16px; }
+  .fama-main { width: min(100% - 24px, 880px); margin-top: 4px; }
+  .fama-hero-card { padding: 28px 20px 24px; }
+  .fama-cards { grid-template-columns: 1fr; }
+}

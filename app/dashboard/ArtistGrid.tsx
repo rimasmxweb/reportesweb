@@ -24,7 +24,15 @@ function normalize(s: string) {
   return s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
 }
 
-export default function ArtistGrid({ artists }: { artists: Artist[] }) {
+export default function ArtistGrid({
+  artists,
+  showSearch = true,
+  featuredId,
+}: {
+  artists: Artist[]
+  showSearch?: boolean
+  featuredId?: string
+}) {
   const [query, setQuery] = useState('')
 
   const filtered = useMemo(() => {
@@ -35,8 +43,7 @@ export default function ArtistGrid({ artists }: { artists: Artist[] }) {
 
   return (
     <div>
-      {/* Buscador */}
-      <div className="mb-5 max-w-md">
+      {showSearch && <div className="mb-5 max-w-md">
         <div className="relative">
           <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9b9ba3] text-sm pointer-events-none">⌕</span>
           <input
@@ -62,7 +69,7 @@ export default function ArtistGrid({ artists }: { artists: Artist[] }) {
             Mostrando {filtered.length} de {artists.length}
           </p>
         )}
-      </div>
+      </div>}
 
       {filtered.length === 0 ? (
         <div className="border border-[#e6e6e8] bg-white rounded-2xl p-10 text-center shadow-[var(--shadow-card)]">
@@ -76,7 +83,9 @@ export default function ArtistGrid({ artists }: { artists: Artist[] }) {
             <Link
               key={artist.id}
               href={`/dashboard/${artist.slug}`}
-              className="group relative aspect-[4/5] rounded-[20px] overflow-hidden bg-[#1a1a1a] block hover:-translate-y-1 hover:ring-2 hover:ring-[#E8192C]/60 active:scale-[0.98] transition-all duration-300 animate-rise"
+              className={`group relative aspect-[4/5] rounded-[20px] overflow-hidden bg-[#1a1a1a] block hover:-translate-y-1 hover:ring-2 hover:ring-[#E8192C]/60 active:scale-[0.98] transition-all duration-300 animate-rise ${
+                artist.id === featuredId ? 'ring-2 ring-[#E8192C]' : ''
+              }`}
               style={{ '--stagger': Math.min(index, 10) } as React.CSSProperties}
             >
               {artist.photo ? (
@@ -102,6 +111,15 @@ export default function ArtistGrid({ artists }: { artists: Artist[] }) {
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
               {/* Contenido */}
+              {artist.id === featuredId && (
+                <span
+                  className="absolute top-3 left-3 z-10 bg-white text-[#0a0a0b] text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded-full"
+                  style={C}
+                >
+                  Principal
+                </span>
+              )}
+
               <div className="absolute bottom-0 inset-x-0 p-3">
                 <p
                   className="text-white text-2xl font-black uppercase leading-none group-hover:text-[#FF5A3C] transition-colors"
