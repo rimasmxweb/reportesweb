@@ -1,5 +1,5 @@
 {
-  "documentation": "Catálogo de lanzamientos. Cada entrada pertenece a un artista y, más adelante, puede vivir en una base de datos con la misma forma: id, artista, tipo (sencillo, EP o álbum), título, active, campaignStart y publicYoutubeViews.\n\nactive marca si el lanzamiento sigue en la vista del hero. campaignStart (YYYY-MM-DD) es la fecha de inicio registrada a mano: entre los activos, gana el de fecha más reciente. Hoy ese es «Cuál es la necesidad» (2026-09-03), después de «DND» (2026-09-02). publicYoutubeViews son las vistas públicas del canal de YouTube. null significa que el canal no está conectado. No se rellenan con reproducciones pagadas.\n\nEmparejamiento (lib/releaseMatch.ts):\n- Se compara el nombre de la campaña, no un proyecto derivado.\n- Mayúsculas y acentos no importan.\n- mode \"contains\": la frase normalizada aparece dentro del nombre.\n- mode \"token\": la sigla es una palabra completa. Sirve para siglas cortas.\n- Basta con que coincida un patrón de nameContains.\n\nConvención de nombres que cubre este mapeo:\n- «Artista - Canción (tipo de campaña)»\n- «Artista | fase | Canción | tipo»\nLos separadores se tratan como espacios al normalizar.",
+  "documentation": "Catálogo de lanzamientos. Cada entrada pertenece a un artista y, más adelante, puede vivir en una base de datos con la misma forma: id, artista, tipo (sencillo, EP o álbum), título, active, campaignStart, youtubeVideoId, publicViews y publicViewsFetchedAt.\n\nactive marca si el lanzamiento sigue en la vista del hero. campaignStart (YYYY-MM-DD) es la fecha de inicio registrada a mano: entre los activos, gana el de fecha más reciente. Hoy ese es «Cuál es la necesidad» (2026-09-03), después de «DND» (2026-09-02).\n\nyoutubeVideoId es el video oficial en el canal de YouTube del artista (UC-LRORSJOy5cOBd5TVVQ6Fw). La pauta sincronizada no trae el id del video, así que se usa el video oficial del canal: «Official Performance Video», publicado el 4 sep 2026. No hay otra subida oficial más nueva de estos sencillos en ese canal.\n\npublicViews y publicViewsFetchedAt son un respaldo manual de las vistas públicas. null significa que aún no hay número. No se copian de las reproducciones pagadas. Si existe YOUTUBE_API_KEY, /api/sync vuelve a leer el conteo y lo guarda en release_public_views; esa fila pisa este respaldo.\n\nEmparejamiento (lib/releaseMatch.ts):\n- Se compara el nombre de la campaña, no un proyecto derivado.\n- Mayúsculas y acentos no importan.\n- mode \"contains\": la frase normalizada aparece dentro del nombre.\n- mode \"token\": la sigla es una palabra completa. Sirve para siglas cortas.\n- Basta con que coincida un patrón de nameContains.\n\nConvención de nombres que cubre este mapeo:\n- «Artista - Canción (tipo de campaña)»\n- «Artista | fase | Canción | tipo»\nLos separadores se tratan como espacios al normalizar.",
   "releases": [
     {
       "id": "92e12213-88d5-434c-983f-b57b371846db",
@@ -10,7 +10,9 @@
       "title": "Cuál es la necesidad",
       "active": true,
       "campaignStart": "2026-09-03",
-      "publicYoutubeViews": null,
+      "youtubeVideoId": "o6NzCQNp1LQ",
+      "publicViews": 2593375,
+      "publicViewsFetchedAt": "2026-09-29T00:41:36Z",
       "nameContains": [
         {
           "text": "cual es la necesidad",
@@ -28,7 +30,9 @@
       "title": "DND",
       "active": true,
       "campaignStart": "2026-09-02",
-      "publicYoutubeViews": null,
+      "youtubeVideoId": "Ajt4KE7W_2o",
+      "publicViews": 2038219,
+      "publicViewsFetchedAt": "2026-09-29T00:41:36Z",
       "nameContains": [
         {
           "text": "dnd",

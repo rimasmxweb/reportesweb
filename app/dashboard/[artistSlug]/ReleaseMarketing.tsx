@@ -33,7 +33,8 @@ export type ReleaseCard = {
   typeLabel: string
   active: boolean
   campaignStart: string
-  publicYoutubeViews: number | null
+  publicViews: number | null
+  publicViewsFetchedAt: string | null
 }
 
 type LoadState =
@@ -71,10 +72,10 @@ function fmtDay(iso: string) {
   })
 }
 
-function corteLabel(iso: string | null) {
-  if (!iso) return 'Corte: sin datos sincronizados'
+function stampLabel(prefix: string, iso: string | null, empty: string) {
+  if (!iso) return empty
   const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) return 'Corte: sin datos sincronizados'
+  if (Number.isNaN(date.getTime())) return empty
   const text = new Intl.DateTimeFormat('es-MX', {
     timeZone: 'America/Mexico_City',
     day: 'numeric',
@@ -83,7 +84,11 @@ function corteLabel(iso: string | null) {
     hour: '2-digit',
     minute: '2-digit',
   }).format(date)
-  return `Corte: ${text}`
+  return `${prefix}: ${text}`
+}
+
+function corteLabel(iso: string | null) {
+  return stampLabel('Corte', iso, 'Corte: sin datos sincronizados')
 }
 
 function SectionTitle({ title, subtitle }: { title: string; subtitle?: string }) {
@@ -163,8 +168,10 @@ export default function ReleaseMarketing({
       <section className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-3 bg-[#0a0a0b] text-white rounded-[24px] p-6 sm:p-8 min-h-[280px] flex flex-col justify-between">
           <div>
-            <p className="text-white/60 text-[10px] uppercase tracking-[0.28em] font-bold" style={C}>
-              Vistas en YouTube
+            <p className="text-white/70 text-xs sm:text-sm uppercase tracking-[0.18em] font-bold" style={C}>
+              {selected
+                ? `Vistas públicas en YouTube · ${selected.title}`
+                : 'Vistas públicas en YouTube'}
             </p>
             <p className="text-[#E8192C] text-xs uppercase tracking-[0.22em] font-bold mt-3" style={C}>
               {isActiveHero && selected
@@ -176,19 +183,19 @@ export default function ReleaseMarketing({
             </h2>
           </div>
 
-          {selected?.publicYoutubeViews == null ? (
+          {selected?.publicViews == null ? (
+            <p className="mt-8 text-3xl sm:text-4xl font-black uppercase leading-tight" style={C}>
+              Pendiente: falta la llave de YouTube
+            </p>
+          ) : (
             <div className="mt-8">
-              <p className="text-3xl sm:text-4xl font-black uppercase leading-tight" style={C}>
-                Pendiente: conectar canal de YouTube
+              <p className="text-6xl sm:text-7xl font-black tabular-nums leading-none" style={C}>
+                {fmtCount(selected.publicViews)}
               </p>
-              <p className="text-white/60 text-sm mt-3 max-w-md">
-                Este número es el de las vistas públicas del canal. No usamos las reproducciones de la pauta aquí.
+              <p className="text-white/60 text-sm mt-3" style={C}>
+                {stampLabel('Consulta', selected.publicViewsFetchedAt, 'Consulta: sin fecha')}
               </p>
             </div>
-          ) : (
-            <p className="mt-8 text-6xl sm:text-7xl font-black tabular-nums leading-none" style={C}>
-              {fmtCount(selected.publicYoutubeViews)}
-            </p>
           )}
         </div>
 

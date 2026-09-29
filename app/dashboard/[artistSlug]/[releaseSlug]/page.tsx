@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { getSession } from '@/lib/auth'
 import { getArtistBySlug } from '@/lib/config'
 import { getLatestActiveRelease, getRelease, getReleasesForArtist, releaseTypeLabel } from '@/lib/releases'
+import { displayPublicViews, readStoredPublicViews } from '@/lib/publicViews'
 import Link from 'next/link'
 import Image from 'next/image'
 import ReleaseMarketing from '../ReleaseMarketing'
@@ -38,6 +39,9 @@ export default async function ReleaseDashboardPage({
   const release = artist ? getRelease(artist.slug, releaseSlug) : undefined
 
   if (!artist || !release || !session.artistIds.includes(artist.id)) notFound()
+
+  const artistReleases = getReleasesForArtist(artist.slug)
+  const storedViews = await readStoredPublicViews(artistReleases.map((item) => item.id))
 
   const photo = photoSrc(artistSlug)
 
@@ -121,13 +125,13 @@ export default async function ReleaseDashboardPage({
       <ReleaseMarketing
         key={release.slug}
         artistSlug={artist.slug}
-        releases={getReleasesForArtist(artist.slug).map((item) => ({
+        releases={artistReleases.map((item) => ({
           slug: item.slug,
           title: item.title,
           typeLabel: releaseTypeLabel(item.type),
           active: item.active,
           campaignStart: item.campaignStart,
-          publicYoutubeViews: item.publicYoutubeViews,
+          ...displayPublicViews(item, storedViews.get(item.id)),
         }))}
         selectedSlug={release.slug}
         latestActiveSlug={getLatestActiveRelease(artist.slug)?.slug ?? null}

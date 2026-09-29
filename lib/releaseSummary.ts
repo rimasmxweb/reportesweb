@@ -1,6 +1,5 @@
 // Resumen de pauta de un lanzamiento. Solo usa columnas de gasto y
-// reproducciones pagadas. Las vistas públicas del canal viven en el catálogo
-// (publicYoutubeViews) y no entran en estas cuentas.
+// reproducciones pagadas. Las vistas públicas del video oficial no entran aquí.
 
 export const PAID_PLATFORMS = ['google_youtube', 'tiktok', 'meta'] as const
 

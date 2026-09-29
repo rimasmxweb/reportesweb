@@ -19,7 +19,9 @@ export type Release = {
   title: string
   active: boolean
   campaignStart: string
-  publicYoutubeViews: number | null
+  youtubeVideoId: string | null
+  publicViews: number | null
+  publicViewsFetchedAt: string | null
   nameContains: NamePattern[]
   mapping: string
 }

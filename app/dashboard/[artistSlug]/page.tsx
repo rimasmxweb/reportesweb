@@ -7,6 +7,7 @@ import MetricsDashboard from './MetricsDashboard'
 import ReleaseMarketing from './ReleaseMarketing'
 import { photoSrc } from '@/lib/artistPhotos'
 import { getLatestActiveRelease, getReleasesForArtist, releaseTypeLabel } from '@/lib/releases'
+import { displayPublicViews, readStoredPublicViews } from '@/lib/publicViews'
 
 const CONDENSED = { fontFamily: "'Barlow Condensed', sans-serif" }
 
@@ -25,13 +26,14 @@ export default async function ArtistDashboardPage({
 
   const releases = getReleasesForArtist(artist.slug)
   const latest = getLatestActiveRelease(artist.slug)
+  const storedViews = await readStoredPublicViews(releases.map((release) => release.id))
   const releaseCards = releases.map((release) => ({
     slug: release.slug,
     title: release.title,
     typeLabel: releaseTypeLabel(release.type),
     active: release.active,
     campaignStart: release.campaignStart,
-    publicYoutubeViews: release.publicYoutubeViews,
+    ...displayPublicViews(release, storedViews.get(release.id)),
   }))
 
   return (

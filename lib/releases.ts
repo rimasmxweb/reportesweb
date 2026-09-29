@@ -53,11 +53,23 @@ function assertCatalog(releases: Release[]) {
     if (!DATE_RE.test(release.campaignStart ?? '')) {
       throw new Error(`Catálogo de lanzamientos: campaignStart inválido en «${release.slug}»`)
     }
+    if (release.youtubeVideoId != null && !/^[A-Za-z0-9_-]{11}$/.test(release.youtubeVideoId)) {
+      throw new Error(`Catálogo de lanzamientos: youtubeVideoId inválido en «${release.slug}»`)
+    }
     if (
-      release.publicYoutubeViews != null &&
-      (!Number.isFinite(release.publicYoutubeViews) || release.publicYoutubeViews < 0)
+      release.publicViews != null &&
+      (!Number.isFinite(release.publicViews) || release.publicViews < 0 || !Number.isInteger(release.publicViews))
     ) {
       throw new Error(`Catálogo de lanzamientos: vistas públicas inválidas en «${release.slug}»`)
+    }
+    if (release.publicViews == null && release.publicViewsFetchedAt != null) {
+      throw new Error(`Catálogo de lanzamientos: hay fecha de consulta sin vistas en «${release.slug}»`)
+    }
+    if (release.publicViews != null && !release.publicViewsFetchedAt) {
+      throw new Error(`Catálogo de lanzamientos: faltan la fecha de las vistas públicas en «${release.slug}»`)
+    }
+    if (release.publicViewsFetchedAt != null && Number.isNaN(Date.parse(release.publicViewsFetchedAt))) {
+      throw new Error(`Catálogo de lanzamientos: fecha de vistas públicas inválida en «${release.slug}»`)
     }
     if (!release.nameContains?.length) {
       throw new Error(`Catálogo de lanzamientos: «${release.slug}» no define nameContains`)
@@ -75,6 +87,10 @@ function assertCatalog(releases: Release[]) {
 
 const catalog = raw as Catalog
 assertCatalog(catalog.releases)
+
+export function getAllReleases(): Release[] {
+  return catalog.releases
+}
 
 export function getReleasesForArtist(artistSlug: string): Release[] {
   return catalog.releases.filter((release) => release.artistSlug === artistSlug)
