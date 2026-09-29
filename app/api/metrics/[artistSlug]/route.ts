@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { getArtistBySlug } from '@/lib/config'
-import { getArtistMetrics } from '@/lib/campaignData'
+import { getArtistMetrics, getLatestSyncAt } from '@/lib/campaignData'
+import { getFxRates } from '@/lib/fx'
+import { campaignMatchesRelease, filterMetricsForRelease, getRelease } from '@/lib/releases'
 
 export async function GET(
   request: NextRequest,
@@ -35,11 +37,39 @@ export async function GET(
     dateFrom = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10)
   }
 
+  const releaseParam = searchParams.get('release')
+  const release = releaseParam ? getRelease(artist.slug, releaseParam) : undefined
+  if (releaseParam && !release) {
+    return NextResponse.json({ error: 'Lanzamiento no encontrado' }, { status: 404 })
+  }
+
   try {
     const metrics = await getArtistMetrics(artist, dateFrom, platform, dateTo)
+    const filtered = release ? filterMetricsForRelease(metrics, release) : metrics
+
+    let syncedAt: string | null = null
+    try {
+      syncedAt = await getLatestSyncAt(
+        artist.id,
+        release ? (name) => campaignMatchesRelease(name, release) : undefined
+      )
+    } catch (err) {
+      console.error('[api/metrics] corte', err)
+    }
+
+    let usdToMxn: number | null = null
+    try {
+      const mxn = (await getFxRates()).MXN
+      usdToMxn = typeof mxn === 'number' && Number.isFinite(mxn) && mxn > 0 ? mxn : null
+    } catch (err) {
+      console.error('[api/metrics] tipo de cambio', err)
+    }
+
     return NextResponse.json({
       artist: { id: artist.id, name: artist.name, slug: artist.slug },
-      metrics,
+      metrics: filtered,
+      syncedAt,
+      usdToMxn,
     })
   } catch (err) {
     console.error('[api/metrics]', err)

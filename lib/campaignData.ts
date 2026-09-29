@@ -24,7 +24,7 @@ export type MetricRow = {
   ctr: number | null
   cpm: number | null
   frequency: number | null
-  public_views: number
+  public_views: number | null
   thruviews: number
   engagements: number
   subscriber_conversions: number
@@ -193,6 +193,27 @@ export async function getActivePlatformsByArtist(): Promise<Map<string, Set<stri
     map.get(row.artist_id)!.add(row.platform)
   }
   return map
+}
+
+export async function getLatestSyncAt(
+  artistId: string,
+  matches?: (campaignName: string) => boolean
+): Promise<string | null> {
+  const db = getDb()
+  const { data, error } = await db
+    .from('campaigns')
+    .select('name, updated_at')
+    .eq('artist_id', artistId)
+  if (error) throw new Error(`Supabase: ${error.message}`)
+
+  let latest: string | null = null
+  for (const row of data ?? []) {
+    if (matches && !matches(String(row.name ?? ''))) continue
+    const at = row.updated_at == null ? null : String(row.updated_at)
+    if (!at) continue
+    if (!latest || at > latest) latest = at
+  }
+  return latest
 }
 
 export { getArtists }

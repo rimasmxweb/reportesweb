@@ -1,0 +1,45 @@
+{
+  "documentation": "Catálogo de lanzamientos. Cada entrada pertenece a un artista y, más adelante, puede vivir en una base de datos con la misma forma: id, artista, tipo (sencillo, EP o álbum), título, active, campaignStart, youtubeVideoId, publicViews y publicViewsFetchedAt.\n\nactive marca si el lanzamiento sigue en la vista del hero. campaignStart (YYYY-MM-DD) es la fecha de inicio registrada a mano: entre los activos, gana el de fecha más reciente. Hoy ese es «Cuál es la necesidad» (2026-09-03), después de «DND» (2026-09-02).\n\nyoutubeVideoId es el video oficial en el canal de YouTube del artista (UC-LRORSJOy5cOBd5TVVQ6Fw). La pauta sincronizada no trae el id del video, así que se usa el video oficial del canal: «Official Performance Video», publicado el 4 sep 2026. No hay otra subida oficial más nueva de estos sencillos en ese canal.\n\npublicViews y publicViewsFetchedAt son un respaldo manual de las vistas públicas. null significa que aún no hay número. No se copian de las reproducciones pagadas. Si existe YOUTUBE_API_KEY, /api/sync vuelve a leer el conteo y lo guarda en release_public_views; esa fila pisa este respaldo.\n\nEmparejamiento (lib/releaseMatch.ts):\n- Se compara el nombre de la campaña, no un proyecto derivado.\n- Mayúsculas y acentos no importan.\n- mode \"contains\": la frase normalizada aparece dentro del nombre.\n- mode \"token\": la sigla es una palabra completa. Sirve para siglas cortas.\n- Basta con que coincida un patrón de nameContains.\n\nConvención de nombres que cubre este mapeo:\n- «Artista - Canción (tipo de campaña)»\n- «Artista | fase | Canción | tipo»\nLos separadores se tratan como espacios al normalizar.",
+  "releases": [
+    {
+      "id": "92e12213-88d5-434c-983f-b57b371846db",
+      "artistSlug": "yandel",
+      "artistId": "bd3605ed-4942-4364-b202-0b18a354ce55",
+      "slug": "cual-es-la-necesidad",
+      "type": "single",
+      "title": "Cuál es la necesidad",
+      "active": true,
+      "campaignStart": "2026-09-03",
+      "youtubeVideoId": "o6NzCQNp1LQ",
+      "publicViews": 2593375,
+      "publicViewsFetchedAt": "2026-09-29T00:41:36Z",
+      "nameContains": [
+        {
+          "text": "cual es la necesidad",
+          "mode": "contains"
+        }
+      ],
+      "mapping": "Campañas de Yandel cuyo nombre contiene la frase del sencillo, con o sin acentos. Cubre «Yandel - Cuál es la necesidad (Follow On Views)» y «Yandel | F1 | Cuál es la necesidad | Alcance»."
+    },
+    {
+      "id": "6d4887f5-2d0b-44a0-b699-2ac09651794b",
+      "artistSlug": "yandel",
+      "artistId": "bd3605ed-4942-4364-b202-0b18a354ce55",
+      "slug": "dnd",
+      "type": "single",
+      "title": "DND",
+      "active": true,
+      "campaignStart": "2026-09-02",
+      "youtubeVideoId": "Ajt4KE7W_2o",
+      "publicViews": 2038219,
+      "publicViewsFetchedAt": "2026-09-29T00:41:36Z",
+      "nameContains": [
+        {
+          "text": "dnd",
+          "mode": "token"
+        }
+      ],
+      "mapping": "Campañas de Yandel cuyo nombre contiene la sigla DND como token completo. Cubre «Yandel - DND (Multiformato)» y «Yandel | DND | Alcance». No coincide si esas letras van pegadas a otra palabra (por ejemplo DNDY). La sigla debe ir seguida, no separada por puntos."
+    }
+  ]
+}
